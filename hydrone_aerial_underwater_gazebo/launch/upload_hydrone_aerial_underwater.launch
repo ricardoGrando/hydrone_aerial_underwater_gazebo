@@ -4,7 +4,7 @@
 
   <arg name="x" default="-12" doc="X coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="y" default="2" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
-  <arg name="z" default="5" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="z" default="3" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
   <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
   <arg name="yaw" default="0.0" doc="Yaw angle of the vehicle's initial orientation"/>
@@ -56,10 +56,20 @@
     <!-- A joint state publisher plugin already is started with the model, no need to use the default joint state publisher -->
 
     <!-- Publish robot model for ROS -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen">
+    <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen">
       <param name="robot_description" value="/$(arg namespace)/robot_description" />
       <param name="publish_frequency" value="5" />
+    </node> -->
+
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+      <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/lee_controller_hydrone.yaml" />
+      <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/hydrone.yaml" />
+      <remap from="odometry" to="odometry_sensor1/odometry" />
     </node>
+    <node name="hovering_example" pkg="rotors_gazebo" type="hovering_example" output="screen"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
   </group>
 
   <include file="$(find uuv_assistants)/launch/message_to_tf.launch">

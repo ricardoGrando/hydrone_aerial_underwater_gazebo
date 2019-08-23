@@ -5,9 +5,9 @@
   <arg name="namespace" default="$(arg mav_name)"/>
   <arg name="model" default="$(find hydrone_aerial_underwater_description)/urdf/$(arg mav_name)_base.xacro"/>
   <arg name="tf_prefix" default="$(optenv ROS_NAMESPACE)"/>
-  <arg name="x" default="-12.0"/>
-  <arg name="y" default="2.0"/>
-  <arg name="z" default="5.0"/>
+  <arg name="x" default="-3.25"/>
+  <arg name="y" default="3.0"/>
+  <arg name="z" default="0.6"/>
   <arg name="enable_logging" default="false"/>
   <arg name="enable_ground_truth" default="true"/>
   <arg name="log_file" default="$(arg mav_name)"/>
@@ -28,7 +28,7 @@
   <param name="tf_prefix" type="string" value="$(arg tf_prefix)" />
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
-  <node name="spawn_$(arg namespace)" pkg="gazebo_ros" type="spawn_model"
+  <!-- <node name="spawn_$(arg namespace)" pkg="gazebo_ros" type="spawn_model"
    args="-param robot_description
          -urdf
          -x $(arg x)
@@ -36,5 +36,12 @@
          -z $(arg z)
          -model $(arg namespace)"
    respawn="false" output="screen">
-  </node>
+  </node> -->
+
+  <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
+  <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
+  <arg name="yaw" default="0.0" doc="Yaw angle of the vehicle's initial orientation"/>
+
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+            args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -model $(arg namespace) -param robot_description"/>
 </launch>

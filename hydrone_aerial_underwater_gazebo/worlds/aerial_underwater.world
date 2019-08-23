@@ -11,10 +11,24 @@
       <elevation>500.0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
-    <physics name="default_physics" default="true" type="ode">
-      <max_step_size>0.002</max_step_size>
+    <physics type='ode'>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>1000</iters>
+          <sor>1.3</sor>
+        </solver>
+        <constraints>
+          <cfm>0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>100</contact_max_correcting_vel>
+          <contact_surface_layer>0.001</contact_surface_layer>
+        </constraints>
+      </ode>
+      <max_step_size>0.01</max_step_size>
       <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>500</real_time_update_rate>
+      <real_time_update_rate>100</real_time_update_rate>
+      <gravity>0 0 -9.8</gravity>
     </physics>
 
     <!-- Global light source -->
@@ -48,7 +62,7 @@
     <!-- Aurora on the surface -->
     <include>
       <uri>model://aurora_static</uri>
-      <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
+      <pose>0.0 0.0 -2.0 0.0 0.0 0.0</pose>
       <name>aurora_swimming</name>
     </include>
 

@@ -10,60 +10,104 @@
   <!-- Mass, see p.28 in Berg2012 -->
   <xacro:property name="mass" value="1.42887"/>
 
+  <xacro:property name="namespace" value="$(arg namespace)" />
+  <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
+  <xacro:property name="use_mesh_file" value="true" />
+  <xacro:property name="mesh_file" value="package://hydrone_aerial_underwater_description/meshes/hydrone_base.dae" />
+  <xacro:property name="rotor_1_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_1.dae" />
+  <xacro:property name="rotor_2_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_2.dae" />
+  <xacro:property name="mass" value="1.5" /> <!-- [kg] -->
+  <xacro:property name="body_width" value="0.47" /> <!-- [m] -->
+  <xacro:property name="body_height" value="0.09" /> <!-- [m] -->
+  <xacro:property name="mass_rotor" value="0.005" /> <!-- [kg] -->
+  <xacro:property name="arm_length_front_x" value="0.19725" /> <!-- [m] -->
+  <xacro:property name="arm_length_back_x" value="0.19725" /> <!-- [m] -->
+  <xacro:property name="arm_length_front_y" value="0.19725" /> <!-- [m] -->
+  <xacro:property name="arm_length_back_y" value="0.19725" /> <!-- [m] -->
+  <xacro:property name="rotor_offset_top" value="0.035" /> <!-- [m] -->
+  <xacro:property name="radius_rotor" value="0.195" /> <!-- [m] -->
+  <xacro:property name="motor_constant" value="8.54858e-06" /> <!-- [kg.m/s^2] -->
+  <xacro:property name="moment_constant" value="0.016" /> <!-- [m] -->
+  <xacro:property name="time_constant_up" value="0.0125" /> <!-- [s] -->
+  <xacro:property name="time_constant_down" value="0.025" /> <!-- [s] -->
+  <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] -->
+  <xacro:property name="sin30" value="0.5" />
+  <xacro:property name="cos30" value="0.866025403784" />
+  <xacro:property name="sqrt2" value="1.4142135623730951" />
+  <xacro:property name="rotor_drag_coefficient" value="8.06428e-05" />
+  <xacro:property name="rolling_moment_coefficient" value="0.000001" />
+  <xacro:property name="mesh_pos_x" value="-0.2175" /> <!-- [m] -->
+  <xacro:property name="mesh_pos_y" value="0.2175" /> <!-- [m] -->
+  <xacro:property name="mesh_pos_z" value="-0.05" /> <!-- [m] -->
+  <xacro:property name="mesh_ori_x" value="1.5707" /> <!-- [m] -->
+  <xacro:property name="mesh_ori_y" value="0.0" /> <!-- [m] -->
+  <xacro:property name="mesh_ori_z" value="0.0" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_pos_x" value="0.1905" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_pos_y" value="-0.0205" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_pos_z" value="0.01" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_ori_x" value="-1.5707" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_ori_y" value="0.0" /> <!-- [m] -->
+  <xacro:property name="mesh_aerprop_ori_z" value="1.5707" /> <!-- [m] -->
+
+  <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
+  <xacro:property name="rotor_inertia">
+    <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
+  </xacro:property>
+
+  <!-- Included URDF Files -->
+  <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/multirotor_base.xacro" />
+
   <xacro:macro name="hydrone_aerial_underwater_base"
     params="namespace *gazebo use_simplified_mesh inertial_reference_frame">
-    <!-- Defining base link according to ROS conventions: x forward, z up -->
-    <link name="${namespace}/base_link">
+    <!-- <link name="${namespace}/base_link">
       <inertial>
         <mass value="${mass}"/>
         <origin xyz="0 0 0.115" rpy="0 0 0"/>
-        <!-- <inertia ixx="525.39" ixy="1.44" ixz="33.41" iyy="794.20" iyz="2.6" izz="691.23"/> -->
-        <!-- <inertia ixx="0.52539" ixy="0.00144" ixz="0.03341" iyy="0.79420" iyz="0.0026" izz="0.69123"/>         -->
-        <!-- <inertia
-          ixx="1.0" ixy="1.0" ixz="1.0"
-          iyy="1.0" iyz="1.0"
-          izz="1.0"/> -->
-        <!-- <inertia
-          ixx="0.014464898" ixy="0.000204146" ixz="-0.000787033"
-          iyy="0.028817961" iyz="-0.00011572"
-          izz="0.015410484"/>
-         -->
-         <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218" />
+       
+        <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" /> 
       </inertial> 
       <visual>
           <origin xyz="-0.2175 0.2175 0.05" rpy="1.5707 0 0"/>
           <geometry>
-            <mesh filename="${visual_mesh_file}" scale="1 1 1"/>           
-            <!-- <box size="0.44 0.44 0.05"/> -->
+            <mesh filename="${visual_mesh_file}" scale="1 1 1"/>    
           </geometry>
       </visual> 
 
-      <collision>
-        <!-- <origin xyz="-0.2175 0.2175 0.05" rpy="1.5707 0 0"/>
-        <geometry>
-          <box size="0.44 0.44 0.05"/>
-        </geometry> -->
-
+      <collision>       
         <origin xyz="-0.0 0.0 0.1" rpy="0 0 0"/>
         <geometry>
           <box size="0.44 0.44 0.05"/>
         </geometry>
       </collision> 
+    </link> -->
 
-      <collision>
-        <origin xyz="-0.0 0.0 0.05" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.15 0.15 0.1"/>
-        </geometry>
-      </collision>      
-    </link>
+    <!-- Property Blocks -->
+    <xacro:property name="body_inertia">
+      <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" />
+      <!-- <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218" /> -->
+    </xacro:property>
 
-
-
-
+    <!-- Instantiate multirotor_base_macro once -->
+    <xacro:multirotor_base_macro
+      robot_namespace="${namespace}"
+      mass="${mass}"
+      color="White"
+      body_width="${body_width}"
+      body_height="${body_height}"
+      use_mesh_file="${use_mesh_file}"
+      mesh_file="${mesh_file}"
+      mesh_pos_x="${mesh_pos_x}"
+      mesh_pos_y="${mesh_pos_y}"
+      mesh_pos_z="${mesh_pos_z}"
+      mesh_ori_x="${mesh_ori_x}"
+      mesh_ori_y="${mesh_ori_y}"
+      mesh_ori_z="${mesh_ori_z}"
+      >
+      <xacro:insert_block name="body_inertia" />
+    </xacro:multirotor_base_macro>
 
     <joint name="${namespace}/thruster_1_joint" type="continuous">
-      <origin xyz="0.19725 -0.19725 0.055" rpy="0 0 0"/>
+      <origin xyz="0.19725 -0.19725 -0.055" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <parent link="${namespace}/base_link"/>
       <child link="${namespace}/thruster_1"/>
@@ -148,7 +192,7 @@
 
 
     <joint name="${namespace}/thruster_2_joint" type="continuous">
-      <origin xyz="0.19725 0.19725 0.055" rpy="0 0 0"/>
+      <origin xyz="0.19725 0.19725 -0.055" rpy="0 0 0"/>
       <axis xyz="0 0 -1"/>
       <parent link="${namespace}/base_link"/>
       <child link="${namespace}/thruster_2"/>
@@ -231,7 +275,7 @@
 
 
     <joint name="${namespace}/thruster_3_joint" type="continuous">
-      <origin xyz="-0.19725 0.19725 0.055" rpy="0 0 0"/>
+      <origin xyz="-0.19725 0.19725 -0.055" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <parent link="${namespace}/base_link"/>
       <child link="${namespace}/thruster_3"/>
@@ -312,7 +356,7 @@
 
 
     <joint name="${namespace}/thruster_4_joint" type="continuous">
-      <origin xyz="-0.19725 -0.19725 0.055" rpy="0 0 0"/>
+      <origin xyz="-0.19725 -0.19725 -0.055" rpy="0 0 0"/>
       <axis xyz="0 0 -1"/>
       <parent link="${namespace}/base_link"/>
       <child link="${namespace}/thruster_4"/>
@@ -399,52 +443,10 @@
 
 
 
-    <xacro:property name="namespace" value="$(arg namespace)" />
-    <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
-    <xacro:property name="use_mesh_file" value="true" />
-    <xacro:property name="mesh_file" value="package://hydrone_aerial_underwater_description/meshes/hydrone_base.dae" />
-    <xacro:property name="rotor_1_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_1.dae" />
-    <xacro:property name="rotor_2_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_2.dae" />
-    <xacro:property name="mass" value="1.5" /> <!-- [kg] -->
-    <xacro:property name="body_width" value="0.47" /> <!-- [m] -->
-    <xacro:property name="body_height" value="0.09" /> <!-- [m] -->
-    <xacro:property name="mass_rotor" value="0.005" /> <!-- [kg] -->
-    <xacro:property name="arm_length_front_x" value="0.19725" /> <!-- [m] -->
-    <xacro:property name="arm_length_back_x" value="0.19725" /> <!-- [m] -->
-    <xacro:property name="arm_length_front_y" value="0.19725" /> <!-- [m] -->
-    <xacro:property name="arm_length_back_y" value="0.19725" /> <!-- [m] -->
-    <xacro:property name="rotor_offset_top" value="0.135" /> <!-- [m] -->
-    <xacro:property name="radius_rotor" value="0.195" /> <!-- [m] -->
-    <xacro:property name="motor_constant" value="8.54858e-06" /> <!-- [kg.m/s^2] -->
-    <xacro:property name="moment_constant" value="0.016" /> <!-- [m] -->
-    <xacro:property name="time_constant_up" value="0.0125" /> <!-- [s] -->
-    <xacro:property name="time_constant_down" value="0.025" /> <!-- [s] -->
-    <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] -->
-    <xacro:property name="sin30" value="0.5" />
-    <xacro:property name="cos30" value="0.866025403784" />
-    <xacro:property name="sqrt2" value="1.4142135623730951" />
-    <xacro:property name="rotor_drag_coefficient" value="8.06428e-05" />
-    <xacro:property name="rolling_moment_coefficient" value="0.000001" />
-    <xacro:property name="mesh_pos_x" value="-0.2175" /> <!-- [m] -->
-    <xacro:property name="mesh_pos_y" value="0.2175" /> <!-- [m] -->
-    <xacro:property name="mesh_pos_z" value="-0.05" /> <!-- [m] -->
-    <xacro:property name="mesh_ori_x" value="1.5707" /> <!-- [m] -->
-    <xacro:property name="mesh_ori_y" value="0.0" /> <!-- [m] -->
-    <xacro:property name="mesh_ori_z" value="0.0" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_pos_x" value="0.1905" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_pos_y" value="-0.0205" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_pos_z" value="0.01" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_ori_x" value="-1.5707" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_ori_y" value="0.0" /> <!-- [m] -->
-    <xacro:property name="mesh_aerprop_ori_z" value="1.5707" /> <!-- [m] -->
+    
 
-    <!-- inertia of a single rotor, assuming it is a cuboid. Height=3mm, width=15mm -->
-    <xacro:property name="rotor_inertia">
-      <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
-    </xacro:property>
 
-    <!-- Included URDF Files -->
-    <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/multirotor_base.xacro" />
+
 
     <!-- Instantiate rotors -->
     <xacro:vertical_rotor
@@ -559,8 +561,49 @@
 
 
 
+    <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/component_snippets.xacro" />
 
+    <!-- Mount a generic odometry sensor without odometry map (working everywhere). -->
+    <xacro:odometry_plugin_macro
+      namespace="${namespace}"
+      odometry_sensor_suffix="1"
+      parent_link="${namespace}/base_link"
+      pose_topic="odometry_sensor1/pose"
+      pose_with_covariance_topic="odometry_sensor1/pose_with_covariance"
+      position_topic="odometry_sensor1/position"
+      transform_topic="odometry_sensor1/transform"
+      odometry_topic="odometry_sensor1/odometry"
+      parent_frame_id="world"
+      child_frame_id="${namespace}/odometry_sensor1"
+      mass_odometry_sensor="0.00001"
+      measurement_divisor="1"
+      measurement_delay="0"
+      unknown_delay="0.0"
+      noise_normal_position="0 0 0"
+      noise_normal_quaternion="0 0 0"
+      noise_normal_linear_velocity="0 0 0"
+      noise_normal_angular_velocity="0 0 0"
+      noise_uniform_position="0 0 0"
+      noise_uniform_quaternion="0 0 0"
+      noise_uniform_linear_velocity="0 0 0"
+      noise_uniform_angular_velocity="0 0 0"
+      enable_odometry_map="false"
+      odometry_map=""
+      image_scale="">
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" /> <!-- [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] [kg m^2] -->
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    </xacro:odometry_plugin_macro>
 
+    <!-- <arg name="enable_logging" default="false" />
+    <arg name="enable_ground_truth" default="true" />
+    <arg name="log_file" default="$(arg mav_name)" /> -->
+
+    <!-- Instantiate a controller. -->
+    <xacro:controller_plugin_macro namespace="${namespace}" imu_sub_topic="imu" />
+
+    <xacro:default_imu namespace="${namespace}" parent_link="${namespace}/base_link" />
+
+    <xacro:ground_truth_imu_and_odometry namespace="${namespace}" parent_link="${namespace}/base_link" />
 
     <!-- Set up hydrodynamic plugin given as input parameter -->
     <xacro:insert_block name="gazebo"/>

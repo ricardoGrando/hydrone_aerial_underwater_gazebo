@@ -29,5 +29,48 @@
       wait_to_record_bag="$(arg wait_to_record_bag)" />
   </xacro:if>
 
+  <!-- <xacro:camera_macro
+      namespace="${namespace}"
+      parent_link="${namespace}/base_link"
+      camera_suffix="camera"
+      frame_rate="30"
+      horizontal_fov="1.3962634" 
+      image_width="800"
+      image_height="800"
+      image_format="R8G8B8"
+      min_distance="0.02"
+      max_distance="300"
+      noise_mean="0.0"
+      noise_stddev="0.0" 
+      enable_visual="true"/> -->
+
+
+      <!-- <origin xyz="-0.1 -0.1 -0.2" rpy="0 0 0" />   -->
+      <!-- <xacro:insert_block name="geometry_camera" />       -->
+
+  <xacro:stereo_camera_macro
+    namespace="${namespace}"
+    camera_name="camera"
+    parent_link="${namespace}/base_link"    
+    frame_rate="30"
+    horizontal_fov="2.3962634" 
+    image_width="800"
+    image_height="800"
+    image_format="R8G8B8"
+    min_distance="0.02"
+    max_distance="300"
+    noise_mean="0.0"
+    noise_stddev="0.0" 
+    enable_visual="true"
+    origin_offset_x="0.0"
+    baseline_y="0.05"
+    origin_offset_z="-0.025"
+    />
+
+  <!-- namespace camera_name parent_link frame_rate
+      horizontal_fov image_width image_height image_format min_distance
+      max_distance noise_mean noise_stddev enable_visual origin_offset_x
+      baseline_y origin_offset_z *geometry -->
+  
 </robot>
 
