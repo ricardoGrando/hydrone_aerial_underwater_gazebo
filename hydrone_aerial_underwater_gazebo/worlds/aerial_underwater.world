@@ -116,6 +116,14 @@
 
     <plugin name="sc_interface" filename="libuuv_sc_ros_interface_plugin.so"/>
 
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>-20 10 10 0 0.8 -0.8</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+
 
   </world>
 </sdf>

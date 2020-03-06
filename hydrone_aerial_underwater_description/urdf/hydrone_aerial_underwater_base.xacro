@@ -8,7 +8,8 @@
   <xacro:property name="visual_mesh_file" value="file://$(find hydrone_aerial_underwater_description)/meshes/hydrone_base.dae"/>
 
   <!-- Mass, see p.28 in Berg2012 -->
-  <xacro:property name="mass" value="1.42887"/>
+  <!-- <xacro:property name="mass" value="1.93"/> -->
+  <xacro:property name="mass" value="1862.87"/>
 
   <xacro:property name="namespace" value="$(arg namespace)" />
   <xacro:property name="rotor_velocity_slowdown_sim" value="10" />
@@ -16,7 +17,7 @@
   <xacro:property name="mesh_file" value="package://hydrone_aerial_underwater_description/meshes/hydrone_base.dae" />
   <xacro:property name="rotor_1_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_1.dae" />
   <xacro:property name="rotor_2_mesh_file" value="package://hydrone_aerial_underwater_description/meshes/aerial_propeller_2.dae" />
-  <xacro:property name="mass" value="1.5" /> <!-- [kg] -->
+
   <xacro:property name="body_width" value="0.47" /> <!-- [m] -->
   <xacro:property name="body_height" value="0.09" /> <!-- [m] -->
   <xacro:property name="mass_rotor" value="0.005" /> <!-- [kg] -->
@@ -30,7 +31,7 @@
   <xacro:property name="moment_constant" value="0.016" /> <!-- [m] -->
   <xacro:property name="time_constant_up" value="0.0125" /> <!-- [s] -->
   <xacro:property name="time_constant_down" value="0.025" /> <!-- [s] -->
-  <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] -->
+  <xacro:property name="max_rot_velocity" value="11111838" /> <!-- [rad/s] -->
   <xacro:property name="sin30" value="0.5" />
   <xacro:property name="cos30" value="0.866025403784" />
   <xacro:property name="sqrt2" value="1.4142135623730951" />
@@ -59,31 +60,14 @@
 
   <xacro:macro name="hydrone_aerial_underwater_base"
     params="namespace *gazebo use_simplified_mesh inertial_reference_frame">
-    <!-- <link name="${namespace}/base_link">
-      <inertial>
-        <mass value="${mass}"/>
-        <origin xyz="0 0 0.115" rpy="0 0 0"/>
-       
-        <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" /> 
-      </inertial> 
-      <visual>
-          <origin xyz="-0.2175 0.2175 0.05" rpy="1.5707 0 0"/>
-          <geometry>
-            <mesh filename="${visual_mesh_file}" scale="1 1 1"/>    
-          </geometry>
-      </visual> 
-
-      <collision>       
-        <origin xyz="-0.0 0.0 0.1" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.44 0.44 0.05"/>
-        </geometry>
-      </collision> 
-    </link> -->
-
+    
     <!-- Property Blocks -->
     <xacro:property name="body_inertia">
-      <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" />
+      <!-- Iris values -->
+      <!-- <inertia ixx="0.0347563" ixy="0.0" ixz="0.0" iyy="0.0458929" iyz="0.0" izz="0.0977" /> -->
+      <!-- RexRov Values -->
+      <inertia ixx="525.39" ixy="1.44" ixz="33.41" iyy="794.20" iyz="2.6" izz="691.23"/>
+      <!-- <inertia ixx="0.52539" ixy="0.00144" ixz="0.03341" iyy="0.79420" iyz="0.0026" izz="0.69123"/> -->
       <!-- <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218" /> -->
     </xacro:property>
 
@@ -129,15 +113,15 @@
       </visual>
 
       <collision>
-        <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
-        <geometry>
+        <!--<origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
+         <geometry>
           <mesh filename="file://$(find hydrone_aerial_underwater_description)/meshes/aquatic_propeller_1.dae" scale="1 1 1"/>          
-        </geometry>
+        </geometry> -->
         
-        <!-- <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
         <geometry>
           <box size="0.06 0.06 0.04"/>
-        </geometry> -->
+        </geometry>
       </collision>
     </link>
 
@@ -156,8 +140,8 @@
         <!-- Minimum allowed value for the input signal for thruster unit -->
         <clampMin>3000</clampMin>
         <!-- Minimum and maximum thrust force output allowed -->
-        <thrustMin>-50</thrustMin>
-        <thrustMax>50</thrustMax>
+        <thrustMin>-1000</thrustMin>
+        <thrustMax>1000</thrustMax>
         <!--
         Value from 0 to 1 to set the efficiency of the output thrust force
         Default value is 1.0
@@ -178,7 +162,7 @@
 
         <conversion>
           <type>Basic</type>
-          <rotorConstant>0.0002</rotorConstant>
+          <rotorConstant>0.00031</rotorConstant>
         </conversion>  
       </plugin>
     </gazebo>
@@ -204,15 +188,15 @@
       </xacro:box_inertial>
       
       <collision>
-        <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
+        <!-- <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
         <geometry>
           <mesh filename="file://$(find hydrone_aerial_underwater_description)/meshes/aquatic_propeller.dae" scale="1 1 1"/>          
-        </geometry>
+        </geometry> -->
 
-        <!-- <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+        <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
         <geometry>
           <box size="0.06 0.06 0.04"/>
-        </geometry> -->
+        </geometry>
       </collision>
 
       <visual>
@@ -238,8 +222,8 @@
         <!-- Minimum allowed value for the input signal for thruster unit -->
         <clampMin>3000</clampMin>
         <!-- Minimum and maximum thrust force output allowed -->
-        <thrustMin>-50</thrustMin>
-        <thrustMax>50</thrustMax>
+        <thrustMin>-1000</thrustMin>
+        <thrustMax>1000</thrustMax>
         <!--
         Value from 0 to 1 to set the efficiency of the output thrust force
         Default value is 1.0
@@ -260,7 +244,7 @@
 
         <conversion>
           <type>Basic</type>
-          <rotorConstant>0.0002</rotorConstant>
+          <rotorConstant>0.00031</rotorConstant>
         </conversion>  
       </plugin>
     </gazebo>
@@ -287,15 +271,15 @@
       </xacro:box_inertial>
       
       <collision>
-        <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
+        <!-- <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
         <geometry>
           <mesh filename="file://$(find hydrone_aerial_underwater_description)/meshes/aquatic_propeller_1.dae" scale="1 1 1"/>          
-        </geometry>
+        </geometry> -->
 
-        <!-- <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+        <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
         <geometry>
           <box size="0.06 0.06 0.04"/>
-        </geometry> -->
+        </geometry>
       </collision>
 
       <visual>
@@ -321,8 +305,8 @@
         <!-- Minimum allowed value for the input signal for thruster unit -->
         <clampMin>3000</clampMin>
         <!-- Minimum and maximum thrust force output allowed -->
-        <thrustMin>-50</thrustMin>
-        <thrustMax>50</thrustMax>
+        <thrustMin>-1000</thrustMin>
+        <thrustMax>1000</thrustMax>
         <!--
         Value from 0 to 1 to set the efficiency of the output thrust force
         Default value is 1.0
@@ -343,7 +327,7 @@
 
         <conversion>
           <type>Basic</type>
-          <rotorConstant>0.0002</rotorConstant>
+          <rotorConstant>0.00031</rotorConstant>
         </conversion>  
       </plugin>
     </gazebo>
@@ -368,15 +352,15 @@
       </xacro:box_inertial>
       
       <collision>
-        <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
+        <!-- <origin xyz="-0.03 -0.0315 -0.01" rpy="0 0 0"/>
         <geometry>
           <mesh filename="file://$(find hydrone_aerial_underwater_description)/meshes/aquatic_propeller.dae" scale="1 1 1"/>          
-        </geometry>
+        </geometry> -->
 
-        <!-- <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+        <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
         <geometry>
           <box size="0.06 0.06 0.04"/>
-        </geometry> -->
+        </geometry>
       </collision>
 
       <visual>
@@ -402,8 +386,8 @@
         <!-- Minimum allowed value for the input signal for thruster unit -->
         <clampMin>3000</clampMin>
         <!-- Minimum and maximum thrust force output allowed -->
-        <thrustMin>-50</thrustMin>
-        <thrustMax>50</thrustMax>
+        <thrustMin>-1000</thrustMin>
+        <thrustMax>1000</thrustMax>
         <!--
         Value from 0 to 1 to set the efficiency of the output thrust force
         Default value is 1.0
@@ -424,7 +408,7 @@
 
         <conversion>
           <type>Basic</type>
-          <rotorConstant>0.0002</rotorConstant>
+          <rotorConstant>0.00031</rotorConstant>
         </conversion>  
       </plugin>
     </gazebo>
