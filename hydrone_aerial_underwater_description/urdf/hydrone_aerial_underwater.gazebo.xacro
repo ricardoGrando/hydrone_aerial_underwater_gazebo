@@ -10,7 +10,7 @@
 
     <!-- Volume, see p.31 in Berg2012 -->
     <!-- <xacro:property name="volume" value="1.83826"/> -->
-    <xacro:property name="volume" value="0.0052887"/>
+    <xacro:property name="volume" value="0.0022887"/>
 
     <xacro:macro name="hydrone_aerial_underwater_hydro_model" params="namespace">
         <link name="${namespace}/base_link">
@@ -27,7 +27,7 @@
             <hydrodynamic_model>
                 <type>fossen</type>
 
-                <!-- <added_mass>
+                <added_mass>
                     1.93       0.0         0.0         0.0         0.0         0.0
                     0.0         1.93       0.0         0.0         0.0         0.0
                     0.0         0.0         1.93       0.0         0.0         0.0
@@ -47,7 +47,7 @@
                 </linear_damping>
                 
     
-                <quadratic_damping>
+                <!-- <quadratic_damping>
                     0.0125   0.0         0.0         0.0         0.0         0.0
                     0.0         0.0125   0.0         0.0         0.0         0.0
                     0.0         0.0         0.0499   0.0         0.0         0.0
@@ -74,22 +74,22 @@
                     -1.6554 -0.58488 -38.642 -1.0027  84.269 -0.11162
                     -0.78033  6.2726  1.0775  2.1019 -0.11162  22.432
                 </added_mass> -->
-                <added_mass>
+                <!-- <added_mass>
                      0.77979 -0.0068773 -0.10332  0.00085426 -0.16554 -0.00078033
                     -0.0068773    1.222   0.05129  0.40944 -0.0058488  0.062726
                     -0.10332   0.05129  3.6599  0.0061112 -0.38642  0.010774
                      0.0085426  0.40944  0.0061112   0.5349 -0.010027  0.021019
                     -0.16554 -0.0058488 -0.38642 -0.010027  0.84269 -0.0011162
                     -0.078033  0.062726  0.010775  0.021019 -0.0011162  0.22432
-                </added_mass>
+                </added_mass> -->
                 
                 <!-- Linear damping: see p.31 in Berg2012 -->
                 <!-- <linear_damping>
                     -74.82 -69.48 -728.4 -268.8 -309.77 -105
                 </linear_damping> -->
-                <linear_damping>
+                <!-- <linear_damping>
                     -0.07482 -0.06948 -0.7284 -0.2688 -0.30977 -0.105
-                </linear_damping>
+                </linear_damping> -->
                 
                 <!-- Non-linear damping: see p.30 in Berg2012 -->
                 <!-- <quadratic_damping>

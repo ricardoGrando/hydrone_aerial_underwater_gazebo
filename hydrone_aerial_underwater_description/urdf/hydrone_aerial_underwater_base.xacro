@@ -90,7 +90,7 @@
       <xacro:insert_block name="body_inertia" />
     </xacro:multirotor_base_macro>
 
-    <joint name="${namespace}/thruster_1_joint" type="continuous">
+    <!-- <joint name="${namespace}/thruster_1_joint" type="continuous">
       <origin xyz="0.19725 -0.19725 -0.055" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <parent link="${namespace}/base_link"/>
@@ -98,7 +98,7 @@
     </joint>
 
     <link name="${namespace}/thruster_1">
-      <xacro:box_inertial x="0" y="0" z="0" mass="0.0001">
+      <xacro:box_inertial x="0" y="0" z="0" mass="0.1">
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </xacro:box_inertial>
 
@@ -159,7 +159,7 @@
     </joint>
 
     <link name="${namespace}/thruster_2">
-      <xacro:box_inertial x="0" y="0" z="0" mass="0.0001">
+      <xacro:box_inertial x="0" y="0" z="0" mass="0.1">
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </xacro:box_inertial>
       
@@ -221,7 +221,7 @@
     </joint>
 
     <link name="${namespace}/thruster_3">
-      <xacro:box_inertial x="0" y="0" z="0" mass="0.0001">
+      <xacro:box_inertial x="0" y="0" z="0" mass="0.1">
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </xacro:box_inertial>
       
@@ -281,7 +281,7 @@
     </joint>
 
     <link name="${namespace}/thruster_4">
-      <xacro:box_inertial x="0" y="0" z="0" mass="0.0001">
+      <xacro:box_inertial x="0" y="0" z="0" mass="0.1">
         <origin xyz="0 0 0" rpy="0 0 0"/>
       </xacro:box_inertial>
       
@@ -328,7 +328,7 @@
     <gazebo reference="${namespace}/thruster_4">
       <selfCollide>false</selfCollide>
       <material>Gazebo/Blue</material>
-    </gazebo>
+    </gazebo> -->
 
     <gazebo reference="${namespace}/base_link">      
       <material>Gazebo/White</material>
