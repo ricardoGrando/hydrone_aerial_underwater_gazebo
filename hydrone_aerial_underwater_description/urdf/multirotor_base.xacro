@@ -144,7 +144,7 @@
         <rotorVelocitySlowdownSim>${rotor_velocity_slowdown_sim}</rotorVelocitySlowdownSim>
       </plugin>
     </gazebo>
-    <gazebo>
+    <!-- <gazebo>
       <plugin name="${namespace}_4_thruster_model" filename="libuuv_thruster_ros_plugin.so">        
         <linkName>${robot_namespace}/rotor_${motor_number}</linkName>
         <jointName>${robot_namespace}/rotor_${motor_number}_joint</jointName>
@@ -167,7 +167,7 @@
           <rotorConstant>0.00031</rotorConstant>
         </conversion>  
       </plugin>
-    </gazebo>
+    </gazebo> -->
     <gazebo reference="${robot_namespace}/rotor_${motor_number}">
       <material>Gazebo/${color}</material>
     </gazebo>
