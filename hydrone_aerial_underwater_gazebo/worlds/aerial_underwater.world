@@ -57,6 +57,13 @@
         </clouds>
       </sky>
       <shadows>1</shadows>
+      <fog>
+        <color>0.1 0.2 0.3 1.0</color>
+        <type>linear</type>
+        <density>0.1</density>
+        <start>10</start>
+        <end>40</end>
+      </fog>
     </scene>
 
     <!-- Aurora on the surface -->
@@ -81,7 +88,7 @@
     <!-- Heightmap -->
     <include>
       <uri>model://sand_heightmap</uri>
-      <pose>0 0 -95 0 0 0</pose>
+      <pose>-120 0 -7 0 0 0</pose>
     </include>
 
     <plugin name="underwater_current_plugin" filename="libuuv_underwater_current_ros_plugin.so">

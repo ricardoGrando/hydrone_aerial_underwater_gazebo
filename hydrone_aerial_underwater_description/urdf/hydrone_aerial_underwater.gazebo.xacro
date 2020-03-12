@@ -10,7 +10,7 @@
 
     <!-- Volume, see p.31 in Berg2012 -->
     <!-- <xacro:property name="volume" value="1.83826"/> -->
-    <xacro:property name="volume" value="0.0022887"/>
+    <xacro:property name="volume" value="0.0010887"/>
 
     <xacro:macro name="hydrone_aerial_underwater_hydro_model" params="namespace">
         <link name="${namespace}/base_link">

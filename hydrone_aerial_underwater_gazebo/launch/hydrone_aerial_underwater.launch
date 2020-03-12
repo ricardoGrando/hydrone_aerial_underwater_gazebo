@@ -48,19 +48,20 @@
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
             args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -model $(arg namespace) -param /$(arg namespace)/robot_description"/>
   
-    <node name="lee_position_controller_aerial_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+    <node name="lee_position_controller_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
       <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/lee_controller_hydrone.yaml" />
       <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/hydrone.yaml" />
       <remap from="odometry" to="odometry_sensor1/odometry" />
-      <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" />
+      <!-- <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" /> -->
     </node>
 
-    <node name="lee_position_controller_underwater_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
+    <!-- <node name="lee_position_controller_underwater_node" pkg="rotors_control" type="lee_position_controller_node" output="screen">
       <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/lee_controller_hydrone_underwater.yaml" />
       <rosparam command="load" file="$(find hydrone_aerial_underwater_gazebo)/resource/hydrone_underwater.yaml" />  
       <remap from="odometry" to="odometry_sensor1/odometry" />    
       <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_underwater/pose" />
-    </node>
+    </node> -->
+    <!-- <node name="hydrone_aerial_underwater_mission_planner" pkg="hydrone_aerial_underwater_mission_planner" type="hydrone_aerial_underwater_mission_planner.py" />     -->
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
