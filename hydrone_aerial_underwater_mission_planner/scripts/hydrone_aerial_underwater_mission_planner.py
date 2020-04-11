@@ -7,6 +7,7 @@ from mavros_msgs.msg import *
 from mavros_msgs.srv import *
 from geographic_msgs.msg import *
 from trajectory_msgs.msg import *
+from nav_msgs.msg import *
 import math
 from uuv_gazebo_ros_plugins_msgs.msg import *
 
@@ -32,78 +33,98 @@ def set_target_position(x,y,z):
     pose.pose.position.y = y
     pose.pose.position.z = z
 
-    while True:                      
-        value = rospy.wait_for_message("/hydrone_aerial_underwater/odometry_sensor1/pose", Pose)
-        # Closed Loop            
-        if ( (value.position.x/x > 1.0-ARR_THRES) and (value.position.x/x < 1.0+ARR_THRES) and \
-                (value.position.y/y > 1.0-ARR_THRES) and (value.position.y/y < 1.0+ARR_THRES) and \
-                ((value.position.z)/z > 1.0-ARR_THRES) and ((value.position.z)/z < 1.0+ARR_THRES)
-                ):
-            # print("Arrived to target point")               
-            
-            break                
-        else:
-            set_point_pub.publish(pose)
+    # while True:                      
+    #     value = rospy.wait_for_message("/hydrone_aerial_underwater/odometry_sensor1/pose", Pose)
+    #     # Closed Loop            
+    #     if ( (value.position.x/x > 1.0-ARR_THRES) and (value.position.x/x < 1.0+ARR_THRES) and \
+    #             (value.position.y/y > 1.0-ARR_THRES) and (value.position.y/y < 1.0+ARR_THRES) and \
+    #             ((value.position.z)/z > 1.0-ARR_THRES) and ((value.position.z)/z < 1.0+ARR_THRES)
+    #             ):
+    #         # print("Arrived to target point")               
+    #         break
+    #         # print(pose.pose.position.z)
+    #         # return pose.pose.position.z
+    #     else:
+    set_point_pub.publish(pose)
+            # print(pose)
 
-        if ((value.position.z)/z < 1.0-ARR_THRES):
-            pose.pose.position.z += 0.01
-            print(pose.pose.position.z)
-        if ((value.position.z)/z > 1.0+ARR_THRES):
-            pose.pose.position.z -= 0.01
-            print(pose.pose.position.z)
+        # odometry = rospy.wait_for_message("/hydrone_aerial_underwater/odometry_sensor1/odometry", Odometry)
+        # # print(odometry.twist.twist.linear)
+        # if (abs(odometry.twist.twist.linear.z) < 0.05):
+        #     if z > 0:
+        #         if ((value.position.z)/z < 1.0-ARR_THRES):
+        #             pose.pose.position.z += 0.1
+        #             # print(pose.pose.position.z)
+        #         if ((value.position.z)/z > 1.0+ARR_THRES):
+        #             pose.pose.position.z -= 0.1
+        #             # print(pose.pose.position.z)
+        #     else:
+        #         if ((value.position.z)/z < 1.0-ARR_THRES):
+        #             pose.pose.position.z -= 0.1
+        #             # print(pose.pose.position.z)
+        #         if ((value.position.z)/z > 1.0+ARR_THRES):
+        #             pose.pose.position.z += 0.1
+        #             # print(pose.pose.position.z)
+
+        # # print (pose.pose.position.z)
+
+    
+
+def goto_to_target_position(incoming_x, incoming_y, incoming_z, target_x, target_y, target_z, NUMBER_STEPS_TO_TARGET):
+
+    delta_x = target_x - incoming_x
+    delta_y = target_y - incoming_y
+    delta_z = target_z - incoming_z
+    for i in range(0, NUMBER_STEPS_TO_TARGET):
+        target_x_delta = incoming_x + (delta_x*(i+1))/NUMBER_STEPS_TO_TARGET
+        target_y_delta = incoming_y + (delta_y*(i+1))/NUMBER_STEPS_TO_TARGET
+        target_z_delta = incoming_z + (delta_z*(i+1))/NUMBER_STEPS_TO_TARGET
+        print("Target Set: "+str(target_x_delta) + " " + str(target_y_delta) + " " + str(target_z_delta))
+        set_target_position(target_x_delta, target_y_delta, target_z_delta)
+        time.sleep(1.0)
 
 if __name__ == "__main__": 
     rospy.init_node("hydrone_aerial_underwater_mission_planner_node", anonymous=False)    
 
-    time.sleep(10.0)    
+    #time.sleep(10.0)    
     print("Enabling thrusters...")
     enable_controller_pub.publish(True)
     time.sleep(1.0)
     print("Took off...")
     print("Going to first position....")
-    set_target_position(-12.0, 2.0, 5.0)
-    time.sleep(5.0)
+    goto_to_target_position(-12.0, 2.0, 3.0, -12.0, 2.0, 5.0, 10)
     print("Going to second position....")
-    set_target_position(-12.0, 10.0, 5.0)
-    time.sleep(5.0)
+    goto_to_target_position(-12.0, 2.0, 5.0, -12.0, 10.0, 5.0, 20)
     print("Hovering water....")
-    set_target_position(-12.0, 10.0, 0.0)
-    time.sleep(5.0)
+    goto_to_target_position(-12.0, 10.0, 5.0, -12.0, 10.0, 1.0, 10)
     # set_target_position(-12.0, 10.0, -1.0)
     # time.sleep(5.0)      
 
     print("Disabling thrusters...")
     enable_controller_pub.publish(False)
     print("Landing on the water...")
-    time.sleep(0.5)   
+    time.sleep(1.0)   
     
     print("Enabling thrusters...")
     enable_controller_pub.publish(True)
     print("Emerging....")
-    set_target_position(-12.0, 10.0, -5.0)
-    time.sleep(10.0)    
-    set_target_position(-10.0, 10.0, -5.6)
-    time.sleep(10.0)   
-    set_target_position(-12.0, 10.0, -5.6)
-    time.sleep(10.0)  
-    set_target_position(-12.0, 10.0, -3.6)
-    time.sleep(10.0)  
+    goto_to_target_position(-12.0, 10.0, -3.0, -12.0, 10.0, -5.6, 20)
+    goto_to_target_position(-12.0, 10.0, -5.6, -10.0, 10.0, -5.6, 20)
+    goto_to_target_position(-10.0, 10.0, -5.6, -12.0, 10.0, 0.0, 20)
     # print("Disabling thrusters...")
     # enable_controller_pub.publish(False)
-
+    
     print("Going to second position....")    
-    set_target_position(-12.0, 10.0, 2.0)
+    goto_to_target_position(-12.0, 10.0, 0.0, -12.0, 10.0, 1.0, 10)
     time.sleep(10.0)
-    set_target_position(-12.0, 10.0, 5.0)
-    time.sleep(5.0)
     print("Going to second position....")
-    set_target_position(-12.0, 10.0, 5.0)
+    goto_to_target_position(-12.0, 10.0, 1.0, -12.0, 10.0, 5.0, 10)
     time.sleep(5.0)
     print("Going to first position....")
-    set_target_position(-12.0, 2.0, 5.0)
+    goto_to_target_position(-12.0, 10.0, 5.0, -12.0, 2.0, 5.0, 20)
     time.sleep(5.0)
     print("Approaching home....")
-    set_target_position(-12.0, 2.0, 3.0)
+    goto_to_target_position(-12.0, 2.0, 5.0, -12.0, 2.0, 3.0, 10)
     time.sleep(5.0)    
     print("Landing...")
     enable_controller_pub.publish(False)    

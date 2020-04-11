@@ -67,11 +67,11 @@
     </scene>
 
     <!-- Aurora on the surface -->
-    <include>
+    <!-- <include>
       <uri>model://aurora_static</uri>
       <pose>0.0 0.0 -2.0 0.0 0.0 0.0</pose>
       <name>aurora_swimming</name>
-    </include>
+    </include> -->
 
       <!-- Virtual NED frame -->
     <include>
@@ -83,6 +83,36 @@
     <include>
       <uri>model://ocean</uri>
       <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <pose>0 -5.0 -8.0 0 0 0</pose>
+      <name>grey_wall_0</name>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <pose>0 5.0 -8.0 0 0 0</pose>
+      <name>grey_wall_1</name>	
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <pose>-5.0 0.0 -8.0 0 0 1.57079632679</pose>
+      <name>grey_wall_2</name>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <pose>5.0 0.0 -8.0 0 0 1.57079632679</pose>
+      <name>grey_wall_3</name>
+    </include>
+
+    <include>
+      <uri>model://grey_wall</uri>
+      <pose>0.0 1.0 -16.0 1.57079632679 0 0</pose>
+      <name>grey_wall_4</name>
     </include>
 
     <!-- Heightmap -->

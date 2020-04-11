@@ -36,7 +36,7 @@
   <xacro:property name="moment_constant" value="0.016" /> <!-- [m] -->
   <xacro:property name="time_constant_up" value="0.0125" /> <!-- [s] -->
   <xacro:property name="time_constant_down" value="0.025" /> <!-- [s] -->
-  <xacro:property name="max_rot_velocity" value="838" /> <!-- [rad/s] -->
+  <xacro:property name="max_rot_velocity" value="1838" /> <!-- [rad/s] -->
 
   <xacro:property name="mesh_pos_x" value="-0.2175" /> <!-- [m] -->
   <xacro:property name="mesh_pos_y" value="0.2175" /> <!-- [m] -->
@@ -55,6 +55,9 @@
   <xacro:property name="rotor_inertia">
     <xacro:box_inertia x="${radius_rotor}" y="0.015" z="0.003" mass="${mass_rotor*rotor_velocity_slowdown_sim}" />
   </xacro:property>
+
+  <xacro:arg name="gpu" default="false"/>
+  <xacro:property name="gpu" value="$(arg gpu)" />
 
   <!-- Included URDF Files -->
   <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/multirotor_base.xacro" />
@@ -509,5 +512,43 @@
     <!-- <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/hydrone_aerial_underwater_actuators.xacro" /> -->
 
   </xacro:macro>
+
+  <joint name="scan_joint" type="fixed">
+    <parent link="${namespace}/base_link"/>
+    <child link="base_scan"/>
+    <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_scan">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://rexrov_ddpg/meshes/lds.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.015 0 -0.0065" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.0315" radius="0.055"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.114" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+              iyy="0.001" iyz="0.0"
+              izz="0.001" />
+    </inertial>
+  </link>
+
+  <!-- <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/VLP-16.urdf.xacro"/>
+  <VLP-16 parent="${namespace}/base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="440" gpu="${gpu}">
+    <origin xyz="0 0 0.05" rpy="0 0 0" />
+  </VLP-16> -->
+
+  
 
 </robot>

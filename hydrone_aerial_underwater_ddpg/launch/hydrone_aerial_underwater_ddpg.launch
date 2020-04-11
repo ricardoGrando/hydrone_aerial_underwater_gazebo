@@ -2,9 +2,9 @@
 <launch>
   <arg name="debug" default="0" doc="Starts the Gazebo plugins in debug mode for more verbose output"/>
 
-  <arg name="x" default="-12" doc="X coordinate of the vehicle's initial position (in ENU)"/>
-  <arg name="y" default="2" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
-  <arg name="z" default="3" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="x" default="0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="y" default="0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
+  <arg name="z" default="1" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
   <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
   <arg name="yaw" default="0.0" doc="Yaw angle of the vehicle's initial orientation"/>
@@ -13,7 +13,7 @@
   <arg name="namespace" default="hydrone_aerial_underwater" doc="Namespace to spawn the vehicle"/>
   <arg name="use_simplified_mesh" default="false" doc="Use simplified geometries instead of the mesh"/>
   
-  <arg name="world_name" default="aerial_underwater"/>
+  <arg name="world_name" default="stage_1"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
 
@@ -28,7 +28,7 @@
   
   <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-      <arg name="world_name"  value="$(find hydrone_aerial_underwater_gazebo)/worlds/$(arg world_name).world"/>
+      <arg name="world_name"  value="$(find hydrone_aerial_underwater_ddpg)/worlds/$(arg world_name).world"/>
       <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="true"/>
       <arg name="gui" value="$(arg gui)"/>
@@ -55,11 +55,11 @@
       <!-- <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" /> -->
     </node>
 
-    <!-- <node name="hydrone_aerial_underwater_mission_planner" pkg="hydrone_aerial_underwater_mission_planner" type="hydrone_aerial_underwater_mission_planner.py" />     -->
+    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity.py" />    
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-
+    
   </group>
 
   <include file="$(find uuv_assistants)/launch/message_to_tf.launch">
