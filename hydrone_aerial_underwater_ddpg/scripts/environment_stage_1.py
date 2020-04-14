@@ -26,13 +26,21 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
-world = False
-if world:
-    from respawnGoal_custom_worlds import Respawn
-else:
-    from respawnGoal import Respawn
+
+# pathfollowing
+# world = False
+# if world:
+#     from respawnGoal_custom_worlds import Respawn
+# else:
+#     from respawnGoal import Respawn
+# import copy
+# target_not_movable = False
+
+# Navegation
+world = True
+from respawnGoal import Respawn
 import copy
-target_not_movable = False
+target_not_movable = True
 
 class Env():
     def __init__(self):
@@ -110,30 +118,52 @@ class Env():
             scan_range.append(pa)
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
-        if current_distance < 0.1:
+        if current_distance < 0.5:
             self.get_goalbox = True
 
         # print(heading, current_distance)
 
         return scan_range + [heading, current_distance], done
 
-    def setReward(self, state, done):
+    def setReward(self, state, scan, done):
         current_distance = state[-1]
         heading = state[-2]
         #print('cur:', current_distance, self.past_distance)
 
+        reward = 0
 
-        distance_rate = (self.past_distance - current_distance) 
-        if distance_rate > 0:
-            # reward = 200.*distance_rate
-            reward = 1.
+        # distance_rate = (self.past_distance - current_distance) 
+        # if distance_rate > 0:
+        #     # reward = 200.*distance_rate
+        #     reward = 1
 
-        # if distance_rate == 0:
-        #     reward = 0.
+        
 
-        if distance_rate <= 0:
-            # reward = -8.
-            reward = 0.
+        # if (abs(self.heading) < math.pi/2):
+        #     if abs(self.heading) <= 0.01:
+        #         self.heading = 0.01
+
+        #     if abs(1.0/(self.heading)) < 10.0 and (scan.ranges[0] > current_distance):
+        #         reward += abs(1.0/(self.heading))/scan.ranges[0]
+        #     elif abs(1.0/(self.heading)) > 10.0 and (scan.ranges[0] > current_distance):
+        #         reward += 10.0/scan.ranges[0]
+
+        #     if (current_distance < 1.0):
+        #         reward += 1.0/current_distance
+                
+        # # if (current_distance >= 1.0):
+        # #     reward += -0.1*current_distance
+
+        # print(abs(1.0/(self.heading)), scan.ranges[0], current_distance)
+        # print(reward)
+        # # # if distance_rate == 0:
+        # # #     reward = 0.
+
+        # if distance_rate <= 0:
+        #     # reward = -8.
+        #     reward = -1.0/current_distance.
+
+        # print(reward)
 
         #angle_reward = math.pi - abs(heading)
         #print('d', 500*distance_rate)
@@ -185,12 +215,12 @@ class Env():
 
     def step(self, action, past_action):
         linear_vel_x = action[0]
-        linear_vel_y = action[1]
-        angular_vel_z = action[2]
+        angular_vel_z = action[1]
+        # angular_vel_z = action[2]
 
         vel_cmd = Twist()
         vel_cmd.linear.x = linear_vel_x
-        vel_cmd.linear.y = linear_vel_y
+        # vel_cmd.linear.y = linear_vel_y
         vel_cmd.angular.z = angular_vel_z
         self.pub_cmd_vel.publish(vel_cmd)
 
@@ -202,7 +232,7 @@ class Env():
                 pass
 
         state, done = self.getState(data, past_action)
-        reward, done = self.setReward(state, done)
+        reward, done = self.setReward(state, data, done)
 
         return np.asarray(state), reward, done
 
@@ -228,6 +258,7 @@ class Env():
             self.goal_x, self.goal_y = self.respawn_goal.getPosition(True, delete=True)
 
         self.goal_distance = self.getGoalDistace()
-        state, _ = self.getState(data, [0.,0., 0.0])
+        # state, _ = self.getState(data, [0.,0., 0.0])
+        state, _ = self.getState(data, [0.,0.])
 
         return np.asarray(state)

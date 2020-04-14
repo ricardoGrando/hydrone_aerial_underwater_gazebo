@@ -115,8 +115,8 @@
             <horizontal>
                 <samples>10</samples>
                 <resolution>1</resolution>
-                <min_angle>0.0</min_angle>
-                <max_angle>6.28319</max_angle>
+                <min_angle>-1.570796</min_angle>
+                <max_angle>1.570796</max_angle>
             </horizontal>
             </scan>
             <range>
@@ -136,6 +136,33 @@
         </plugin>
         </sensor>
     </gazebo>
+
+     <!-- <gazebo reference="base_scan">
+        <sensor:ray name="laser">
+            <rayCount>180</rayCount>
+            <rangeCount>180</rangeCount>
+            <laserCount>1</laserCount>
+
+            <origin>0.0 0.0 0.0</origin>
+            <displayRays>false</displayRays>
+
+            <minAngle>-130</minAngle>
+            <maxAngle>130</maxAngle>
+
+            <minRange>0.08</minRange>
+            <maxRange>10.0</maxRange>
+            <resRange>0.01</resRange>
+            <updateRate>20</updateRate>
+            <controller:gazebo_ros_laser name="gazebo_ros_laser_controller" plugin="libgazebo_ros_laser.so">
+            <gaussianNoise>0.005</gaussianNoise>
+            <alwaysOn>true</alwaysOn>
+            <updateRate>20</updateRate>
+            <topicName>scan</topicName>
+            <frameName>laser</frameName>
+            <interface:laser name="gazebo_ros_laser_iface" />
+            </controller:gazebo_ros_laser>
+        </sensor:ray>
+    </gazebo>  -->
 
 </robot>
 

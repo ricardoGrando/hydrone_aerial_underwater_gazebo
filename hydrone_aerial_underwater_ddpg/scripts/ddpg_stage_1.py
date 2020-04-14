@@ -91,12 +91,11 @@ class Critic(nn.Module):
 #---Actor---#
 
 class Actor(nn.Module):
-    def __init__(self, state_dim, action_dim, action_limit_v, action_limit_vy, action_limit_w):
+    def __init__(self, state_dim, action_dim, action_limit_v,  action_limit_w):
         super(Actor, self).__init__()
         self.state_dim = state_dim = state_dim
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
-        self.action_limit_vy = action_limit_vy
         self.action_limit_w = action_limit_w
         
         self.fa1 = nn.Linear(state_dim, 512)
@@ -113,14 +112,12 @@ class Actor(nn.Module):
         x = mish(self.fa1(state))
         x = mish(self.fa2(x))
         action = self.fa3(x)
-        if state.shape == torch.Size([15]):
-            action[0] = torch.tanh(action[0])*self.action_limit_v
-            action[1] = torch.tanh(action[1])*self.action_limit_vy
-            action[2] = torch.tanh(action[2])*self.action_limit_w
+        if state.shape == torch.Size([14]):
+            action[0] = torch.sigmoid(action[0])*self.action_limit_v
+            action[1] = torch.tanh(action[1])*self.action_limit_w
         else:
-            action[:,0] = torch.tanh(action[:,0])*self.action_limit_v
-            action[:,1] = torch.tanh(action[:,1])*self.action_limit_vy
-            action[:,2] = torch.tanh(action[:,2])*self.action_limit_w
+            action[:,0] = torch.sigmoid(action[:,0])*self.action_limit_v
+            action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
         return action
 
 #---Memory Buffer---#
@@ -162,20 +159,19 @@ TAU = 0.001
 
 class Trainer:
     
-    def __init__(self, state_dim, action_dim, action_limit_v, action_limit_vy, action_limit_w, ram):
+    def __init__(self, state_dim, action_dim, action_limit_v, action_limit_w, ram):
         
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
-        self.action_limit_vy = action_limit_vy
         self.action_limit_w = action_limit_w
         #print('w',self.action_limit_w)
         self.ram = ram
         #self.iter = 0 
         self.noise = ActionNoise(self.action_dim)
         
-        self.actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_vy, self.action_limit_w)
-        self.target_actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_vy, self.action_limit_w)
+        self.actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
+        self.target_actor = Actor(self.state_dim, self.action_dim, self.action_limit_v, self.action_limit_w)
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), LEARNING_RATE)
         
         self.critic = Critic(self.state_dim, self.action_dim)
@@ -276,33 +272,29 @@ is_training = True
 exploration_decay_rate = 0.001
 
 MAX_EPISODES = 10001
-MAX_STEPS = 500
+MAX_STEPS = 100
 MAX_BUFFER = 50000
 # rewards_all_episodes = []
 
-STATE_DIMENSION = 15
-ACTION_DIMENSION = 3
-ACTION_VX_MAX = 0.2 # m/s
-ACTION_VY_MAX = 0.2 # m/s
-ACTION_W_MAX = 0.2 # rad/s
+STATE_DIMENSION = 14
+ACTION_DIMENSION = 2
+ACTION_VX_MAX = 0.5 # m/s
+ACTION_W_MAX = 1.0 # rad/s
 world = 'stage_1'
 
 if is_training:
     var_vx = ACTION_VX_MAX
-    var_vy = ACTION_VY_MAX
     var_w = ACTION_W_MAX
 else:
     var_vx = ACTION_VX_MAX*0.10
-    var_vy = ACTION_VY_MAX*0.10
     var_w = ACTION_W_MAX*0.10
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
-print('Action Max: ' + str(ACTION_VX_MAX) + ' m/s and ' + str(ACTION_VY_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad/s')
+print('Action Max: ' + str(ACTION_VX_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad/s')
 ram = MemoryBuffer(MAX_BUFFER)
-trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_VX_MAX, ACTION_VY_MAX, ACTION_W_MAX, ram)
+trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_VX_MAX, ACTION_W_MAX, ram)
 #trainer.load_models(1560)
-
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
@@ -313,7 +305,7 @@ if __name__ == '__main__':
 
     print("test")
 
-    past_action = np.array([0.,0.,0.0])
+    past_action = np.array([0.,0.])
 
     for ep in range(MAX_EPISODES):
         done = False
@@ -333,9 +325,8 @@ if __name__ == '__main__':
 
             if is_training and ep% 2 == 0 and ram.len >= before_training*MAX_STEPS:
                 action = trainer.get_exploration_action(state)
-                action[0] = np.clip(np.random.normal(action[0], var_vx), -ACTION_VX_MAX, ACTION_VX_MAX)
-                action[1] = np.clip(np.random.normal(action[1], var_vy), -ACTION_VY_MAX, ACTION_VY_MAX)
-                action[2] = np.clip(np.random.normal(action[2], var_w), -ACTION_W_MAX, ACTION_W_MAX)
+                action[0] = np.clip(np.random.normal(action[0], var_vx), 0.0, ACTION_VX_MAX)
+                action[1] = np.clip(np.random.normal(action[1], var_w), -ACTION_W_MAX, ACTION_W_MAX)
             else:
                 action = trainer.get_exploitation_action(state)
 
@@ -359,14 +350,13 @@ if __name__ == '__main__':
 
             if ram.len >= before_training*MAX_STEPS and is_training and ep% 2 == 0:
                 var_vx = max([var_vx*0.99995, 0.1*ACTION_VX_MAX])
-                var_vy = max([var_vy*0.99995, 0.1*ACTION_VY_MAX])
                 var_w = max([var_w*0.99995, 0.1*ACTION_W_MAX])
                 trainer.optimizer()
 
             if done or step == MAX_STEPS-1:
                 print('reward per ep: ' + str(rewards_current_episode))
                 print('reward average per ep: ' + str(round(rewards_current_episode/step, 2)) + ' and break step: ' + str(step))
-                print('explore_vx: ' + str(var_vx) + 'explore_vy: ' + str(var_vy) + ' and explore_w: ' + str(var_w))
+                print('explore_vx: ' + str(var_vx) + ' and explore_w: ' + str(var_w))
                 # rewards_all_episodes.append(rewards_current_episode)
                 if (ep)% 2 == 0:
                     pass

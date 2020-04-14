@@ -84,17 +84,17 @@ class Respawn():
 
         if self.stage != 4:
             while position_check:
-                goal_x = random.randrange(-45, 45) / 10.0
-                goal_y = random.randrange(-45, 45) / 10.0
-                if abs(goal_x - self.obstacle_1[0]) <= 0.4 and abs(goal_y - self.obstacle_1[1]) <= 0.4:
+                goal_x = random.randrange(0, 25) / 10.0
+                goal_y = random.randrange(-25, 25) / 10.0
+                if abs(goal_x - self.obstacle_1[0]) <= 0.6 and abs(goal_y - self.obstacle_1[1]) <= 0.6:
                     position_check = True
-                elif abs(goal_x - self.obstacle_2[0]) <= 0.4 and abs(goal_y - self.obstacle_2[1]) <= 0.4:
+                elif abs(goal_x - self.obstacle_2[0]) <= 0.6 and abs(goal_y - self.obstacle_2[1]) <= 0.6:
                     position_check = True
-                elif abs(goal_x - self.obstacle_3[0]) <= 0.4 and abs(goal_y - self.obstacle_3[1]) <= 0.4:
+                elif abs(goal_x - self.obstacle_3[0]) <= 0.6 and abs(goal_y - self.obstacle_3[1]) <= 0.6:
                     position_check = True
-                elif abs(goal_x - self.obstacle_4[0]) <= 0.4 and abs(goal_y - self.obstacle_4[1]) <= 0.4:
+                elif abs(goal_x - self.obstacle_4[0]) <= 0.6 and abs(goal_y - self.obstacle_4[1]) <= 0.6:
                     position_check = True
-                elif abs(goal_x - 0.0) <= 0.4 and abs(goal_y - 0.0) <= 0.4:
+                elif abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
                     position_check = True
                 else:
                     position_check = False
