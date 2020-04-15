@@ -118,7 +118,7 @@ class Env():
             scan_range.append(pa)
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
-        if current_distance < 0.5:
+        if current_distance < 0.25:
             self.get_goalbox = True
 
         # print(heading, current_distance)

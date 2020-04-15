@@ -240,7 +240,7 @@ def mish(x):
 #----------------------------------------------------------
 
 action_dim = 2
-state_dim  = 14
+state_dim  = 24
 hidden_dim = 500
 ACTION_VX_MIN = 0.0 # m/s
 ACTION_VY_MIN = -1.0 # m/s
@@ -294,12 +294,12 @@ def load_models(episode):
     print('***Models load***')
 
 #****************************
-is_training = False
+is_training = True
 
-load_models(320)   
-hard_update(target_value_net, value_net)
+# load_models(320)   
+# hard_update(target_value_net, value_net)
 max_episodes  = 10001
-max_steps   = 500
+max_steps   = 200
 rewards     = []
 batch_size  = 128
 
@@ -366,13 +366,13 @@ if __name__ == '__main__':
             if done:
                 break
         
-        print('reward per ep: ' + str(rewards_current_episode))
-        print('reward average per ep: ' + str(rewards_current_episode) + ' and break step: ' + str(step))
+        # print('reward per ep: ' + str(rewards_current_episode))
+        # print('reward average per ep: ' + str(rewards_current_episode) + ' and break step: ' + str(step))
         if not ep%2 == 0:
             if len(replay_buffer) > before_training*batch_size:
                 result = rewards_current_episode
                 pub_result.publish(result)
-
+                print('reward per ep: ' + str(rewards_current_episode))
                 file_object = open('resultSac.txt', 'a')
                 file_object.write(str(ep)+','+str(result))
 
