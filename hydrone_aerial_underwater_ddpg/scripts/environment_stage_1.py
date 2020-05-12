@@ -36,14 +36,14 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 # import copy
 # target_not_movable = False
 
-# Navegation
+# # Navegation
 world = True
 from respawnGoal import Respawn
 import copy
 target_not_movable = True
 
 class Env():
-    def __init__(self):
+    def __init__(self, action_dim=2):
         self.goal_x = 0
         self.goal_y = 0
         self.heading = 0
@@ -58,6 +58,7 @@ class Env():
         self.respawn_goal = Respawn()
         self.past_distance = 0.
         self.stopped = 0
+        self.action_dim = action_dim
         #Keys CTRL + c will stop script
         rospy.on_shutdown(self.shutdown)
 
@@ -118,7 +119,7 @@ class Env():
             scan_range.append(pa)
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
-        if current_distance < 0.25:
+        if current_distance < 0.5:
             self.get_goalbox = True
 
         # print(heading, current_distance)
@@ -132,24 +133,29 @@ class Env():
 
         reward = 0
 
-        # distance_rate = (self.past_distance - current_distance) 
+        distance_rate = (self.past_distance - current_distance) 
         # if distance_rate > 0:
         #     # reward = 200.*distance_rate
-        #     reward = 1
+        reward = 1.0*(distance_rate)
 
-        
+        # min_ran = min(scan.ranges)
+
+        # if ( min_ran > 1.0 ):
+        #     reward = 0.1/min_ran
+        # else:
+        #     reward = -1.0/min_ran
 
         # if (abs(self.heading) < math.pi/2):
         #     if abs(self.heading) <= 0.01:
         #         self.heading = 0.01
 
-        #     if abs(1.0/(self.heading)) < 10.0 and (scan.ranges[0] > current_distance):
+        #     if abs(0.1/(self.heading)) < 10.0 and (scan.ranges[0] > current_distance):
         #         reward += abs(1.0/(self.heading))/scan.ranges[0]
-        #     elif abs(1.0/(self.heading)) > 10.0 and (scan.ranges[0] > current_distance):
+        #     elif abs(0.1/(self.heading)) > 10.0 and (scan.ranges[0] > current_distance):
         #         reward += 10.0/scan.ranges[0]
 
-        #     if (current_distance < 1.0):
-        #         reward += 1.0/current_distance
+            # if (current_distance < 1.0):
+            #     reward += 1.0/current_distance
                 
         # # if (current_distance >= 1.0):
         # #     reward += -0.1*current_distance
@@ -168,7 +174,7 @@ class Env():
         #angle_reward = math.pi - abs(heading)
         #print('d', 500*distance_rate)
         #reward = 500.*distance_rate #+ 3.*angle_reward
-        # self.past_distance = current_distance
+        self.past_distance = current_distance
 
         # a, b, c, d = float('{0:.3f}'.format(self.position.x)), float('{0:.3f}'.format(self.past_position.x)), float('{0:.3f}'.format(self.position.y)), float('{0:.3f}'.format(self.past_position.y))
         # if a == b and c == d:
@@ -259,6 +265,6 @@ class Env():
 
         self.goal_distance = self.getGoalDistace()
         # state, _ = self.getState(data, [0.,0., 0.0])
-        state, _ = self.getState(data, [0.,0.])
+        state, _ = self.getState(data, [0]*self.action_dim)
 
         return np.asarray(state)

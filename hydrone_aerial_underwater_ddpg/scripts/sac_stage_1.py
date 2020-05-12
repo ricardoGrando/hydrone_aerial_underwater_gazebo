@@ -10,7 +10,7 @@ import time
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from collections import deque
-from std_msgs.msg import Float32
+from std_msgs.msg import *
 from environment_stage_1 import Env
 import torch
 import torch.nn.functional as F
@@ -296,8 +296,10 @@ def load_models(episode):
 #****************************
 is_training = True
 
-# load_models(320)   
-# hard_update(target_value_net, value_net)
+ep_0 = 6320
+
+load_models(ep_0)   
+hard_update(target_value_net, value_net)
 max_episodes  = 10001
 max_steps   = 200
 rewards     = []
@@ -313,13 +315,13 @@ def action_unnormalized(action, high, low):
 
 if __name__ == '__main__':
     rospy.init_node('sac_stage_1')
-    pub_result = rospy.Publisher('result', Float32, queue_size=5)
-    result = Float32()
+    pub_result = rospy.Publisher('result', String, queue_size=5)
+    result = String()
     env = Env()
-    before_training = 4
+    before_training = 1
     past_action = np.array([0.,0.])
 
-    for ep in range(max_episodes):
+    for ep in range(ep_0, max_episodes):
         done = False
         state = env.reset()
         
@@ -366,15 +368,17 @@ if __name__ == '__main__':
             if done:
                 break
         
-        # print('reward per ep: ' + str(rewards_current_episode))
-        # print('reward average per ep: ' + str(rewards_current_episode) + ' and break step: ' + str(step))
+        print('reward per ep: ' + str(rewards_current_episode))
+        print('reward average per ep: ' + str(rewards_current_episode) + ' and break step: ' + str(step))
         if not ep%2 == 0:
             if len(replay_buffer) > before_training*batch_size:
-                result = rewards_current_episode
+                result = (str(ep)+','+str(rewards_current_episode))
                 pub_result.publish(result)
-                print('reward per ep: ' + str(rewards_current_episode))
-                file_object = open('resultSac.txt', 'a')
-                file_object.write(str(ep)+','+str(result))
+                # print('reward per ep: ' + str(rewards_current_episode))
+                # file_object = open('resultSac.txt', 'a')
+                # file_object.write(str(ep)+','+str(result))
+            # else:
+            #     print("hahahahahaha")
 
         if ep%20 == 0:
             save_models(ep)

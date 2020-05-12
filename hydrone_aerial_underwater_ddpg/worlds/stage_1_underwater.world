@@ -80,10 +80,10 @@
     </include>
 
     <!-- Bounding box with sea surface -->
-    <!-- <include>
+    <include>
       <uri>model://ocean</uri>
       <pose>0 0 0 0 0 0</pose>
-    </include> -->
+    </include>
 
     <include>
       <uri>model://grey_wall</uri>
@@ -111,33 +111,33 @@
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>0.0 1.5 -0.1 1.57079632679 0 0</pose>
+      <pose>0.0 1.5 -4.0 1.57079632679 0 0</pose>
       <name>grey_wall_4</name>
     </include>
 
-    <!-- <include>
+    <include>
       <uri>model://obstacle_1</uri>
-      <pose>2.0 2.0 0.75 0.0 0 0</pose>
+      <pose>2.0 2.0 -2.75 0.0 0 0</pose>
       <name>obstacle_1</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>-2.0 -2.0 0.75 0.0 0 0</pose>
+      <pose>-2.0 -2.0 -2.75 0.0 0 0</pose>
       <name>obstacle_2</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>2.0 -2.0 0.75 0.0 0 0</pose>
+      <pose>2.0 -2.0 -2.75 0.0 0 0</pose>
       <name>obstacle_3</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>-2.0 2.0 0.75 0.0 0 0</pose>
+      <pose>-2.0 2.0 -2.75 0.0 0 0</pose>
       <name>obstacle_4</name>
-    </include> -->
+    </include>
 
     <!-- Heightmap -->
     <!-- <include>
