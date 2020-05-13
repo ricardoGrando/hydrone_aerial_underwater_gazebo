@@ -296,12 +296,12 @@ def load_models(episode):
 #****************************
 is_training = True
 
-ep_0 = 6320
+ep_0 = 1000
 
 load_models(ep_0)   
 hard_update(target_value_net, value_net)
 max_episodes  = 10001
-max_steps   = 200
+max_steps   = 100
 rewards     = []
 batch_size  = 128
 

@@ -278,14 +278,14 @@ is_training = True
 exploration_decay_rate = 0.001
 
 MAX_EPISODES = 10001
-MAX_STEPS = 200
+MAX_STEPS = 75
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
 STATE_DIMENSION = 24
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.5 # m/s
-ACTION_V_MIN = 0.0
+ACTION_V_MIN = 0.1
 ACTION_W_MAX = 1. # rad/s
 world = 'stage_1'
 
