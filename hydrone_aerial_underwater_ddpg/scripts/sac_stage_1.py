@@ -301,7 +301,7 @@ ep_0 = 1000
 load_models(ep_0)   
 hard_update(target_value_net, value_net)
 max_episodes  = 10001
-max_steps   = 100
+max_steps   = 400
 rewards     = []
 batch_size  = 128
 

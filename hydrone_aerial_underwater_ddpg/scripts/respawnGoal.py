@@ -81,43 +81,45 @@ class Respawn():
             else:
                 pass
 
+        # self.index = 0
+
     def getPosition(self, position_check=False, delete=False):
         if delete:
             self.deleteModel()
 
-        if self.stage != 4:
-            while position_check:
-                goal_x = random.randrange(-0, 25) / 10.0
-                goal_y = random.randrange(-25, 25) / 10.0
-                if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
-                    position_check = True
-                else:
-                    position_check = False
+        # if self.stage != 4:
+        #     while position_check:
+        #         goal_x = random.randrange(-45, 45) / 10.0
+        #         goal_y = random.randrange(-45, 45) / 10.0
+        #         if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
+        #             position_check = True
+        #         elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
+        #             position_check = True
+        #         elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
+        #             position_check = True
+        #         elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
+        #             position_check = True
+        #         elif abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
+        #             position_check = True
+        #         else:
+        #             position_check = False
 
-                if abs(goal_x - self.last_goal_x) < 1 and abs(goal_y - self.last_goal_y) < 1:
-                    position_check = True
+        #         if abs(goal_x - self.last_goal_x) < 1 and abs(goal_y - self.last_goal_y) < 1:
+        #             position_check = True
 
-                self.goal_position.position.x = goal_x
-                self.goal_position.position.y = goal_y
+        #         self.goal_position.position.x = goal_x
+        #         self.goal_position.position.y = goal_y
             
-        # goal_x_list = [3.6, -3.6, -3.6, 0.0]
-        # goal_y_list = [2.6, 3.0, 1.0, 0.0]
+        goal_x_list = [3.6, -3.6, -3.6, 0.0]
+        goal_y_list = [2.6, 3.0, 1.0, 0.0]
         # goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
         # goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
 
-        # self.goal_position.position.x = goal_x_list[self.index]
-        # self.goal_position.position.y = goal_y_list[self.index]
+        self.goal_position.position.x = goal_x_list[self.index]
+        self.goal_position.position.y = goal_y_list[self.index]
         
-        # self.index += 1
-        # print(self.index)
+        self.index += 1
+        print(self.index)
 
         time.sleep(0.5)
         self.respawnModel()

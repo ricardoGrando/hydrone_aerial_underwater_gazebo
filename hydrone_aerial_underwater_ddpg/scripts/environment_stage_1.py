@@ -100,12 +100,12 @@ class Env():
     def getState(self, scan, past_action):
         scan_range = []
         heading = self.heading
-        min_range = 0.135
+        min_range = 0.4
         done = False
 
         for i in range(len(scan.ranges)):
             if scan.ranges[i] == float('Inf'):
-                scan_range.append(3.5)
+                scan_range.append(20.0)
             elif np.isnan(scan.ranges[i]):
                 scan_range.append(0)
             else:
@@ -119,14 +119,14 @@ class Env():
             scan_range.append(pa)
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
-        if current_distance < 0.4:
+        if current_distance < 0.3:
             self.get_goalbox = True
 
         # print(heading, current_distance)
 
         return scan_range + [heading, current_distance], done
 
-    def setReward(self, state, scan, done):
+    def setReward(self, state, done):
         current_distance = state[-1]
         heading = state[-2]
         #print('cur:', current_distance, self.past_distance)
@@ -186,16 +186,16 @@ class Env():
         #         rospy.loginfo('Robot is in the same 10 times in a row')
         #         self.stopped = 0
         #         done = True
-        data = None
-        while data is None:
-            try:
-                data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
-            except:
-                pass
+        # data = None
+        # while data is None:
+        #     try:
+        #         data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
+        #     except:
+        #         pass
         # print(data.ranges)
 
-        if (min(data.ranges) < 0.6):            
-            done = True
+        # if (min(data.ranges) < 0.6):            
+        #     done = True
         # else:
         #     # rospy.loginfo('\n>>>>> not stopped>>>>>\n')
         #     self.stopped = 0
@@ -238,7 +238,7 @@ class Env():
                 pass
 
         state, done = self.getState(data, past_action)
-        reward, done = self.setReward(state, data, done)
+        reward, done = self.setReward(state, done)
 
         return np.asarray(state), reward, done
 
