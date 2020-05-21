@@ -1,9 +1,8 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import time
 import rospy
 from std_msgs.msg import *
 from geometry_msgs.msg import *
-
 
 def store_disk(data):
     file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/resultDdpg_paper_env2.csv', 'a')

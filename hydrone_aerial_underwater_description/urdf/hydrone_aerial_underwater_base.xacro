@@ -523,7 +523,7 @@
     <visual>
       <origin xyz="0 0 0.0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://rexrov_ddpg/meshes/lds.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://hydrone_aerial_underwater_description/meshes/lds.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="dark"/>
     </visual>

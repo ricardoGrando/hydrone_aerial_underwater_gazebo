@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# Authors: Junior Costa de Jesus #
+#!/usr/bin/env python3
 
 import rospy
 import os
