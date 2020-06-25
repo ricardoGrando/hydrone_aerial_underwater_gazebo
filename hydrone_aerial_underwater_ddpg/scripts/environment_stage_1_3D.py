@@ -6,29 +6,34 @@ import math
 from math import pi
 from geometry_msgs.msg import Twist, Point, Pose
 from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Range
+from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
-# # pathfollowing
+# pathfollowing
 # world = False
 # if world:
 #     from respawnGoal_custom_worlds import Respawn
 # else:
-#     from respawnGoal import Respawn
+#     from respawnGoal_3D import Respawn
 # import copy
 # target_not_movable = False
 
 # Navegation
 world = True
-from respawnGoal import Respawn
+from respawnGoal_3D import Respawn
 import copy
 target_not_movable = True
 
+UNDERWATER = False
+
 class Env():
-    def __init__(self, action_dim=2):
+    def __init__(self, action_dim=3):
         self.goal_x = 0
         self.goal_y = 0
+        self.goal_z = 0
         self.heading = 0
         self.initGoal = True
         self.get_goalbox = False
@@ -38,6 +43,7 @@ class Env():
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty)
         self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
+        self.reset_fake_pitch = rospy.Publisher("/hydrone_aerial_underwater/reset_fake_pitch", Bool, queue_size=5)
         self.respawn_goal = Respawn()
         self.past_distance = 0.
         self.stopped = 0
@@ -53,7 +59,7 @@ class Env():
         rospy.sleep(1)
 
     def getGoalDistace(self):
-        goal_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y), 2)
+        goal_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2 + (self.goal_z - self.position.z)**2)
         self.past_distance = goal_distance
 
         return goal_distance
@@ -81,6 +87,7 @@ class Env():
         self.heading = round(heading, 3)
 
     def getState(self, scan, past_action):
+        global UNDERWATER
         scan_range = []
         heading = self.heading
         min_range = 0.6
@@ -94,13 +101,16 @@ class Env():
             else:
                 scan_range.append(scan.ranges[i])
 
-        if min_range > min(scan_range) > 0.0:
+
+        if min_range > min(scan_range): #or self.position.z < 0.2 or self.position.z > 2.8:
             done = True
 
         for pa in past_action:
             scan_range.append(pa)
 
-        current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
+        current_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2 + (self.goal_z - self.position.z)**2)
+        # current_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2)
+        
         if current_distance < 0.5:
             self.get_goalbox = True
 
@@ -118,7 +128,7 @@ class Env():
         distance_rate = (self.past_distance - current_distance) 
         # if distance_rate > 0:
         #     # reward = 200.*distance_rate
-        reward = 1.0*(distance_rate)
+        reward = 10.0*(distance_rate)
 
         # min_ran = min(scan.ranges)
 
@@ -189,35 +199,57 @@ class Env():
             self.pub_cmd_vel.publish(Twist())
 
         if self.get_goalbox:
-            rospy.loginfo("Goal!!")
+            rospy.loginfo("Goal!! "+str(abs(self.goal_z - self.position.z)))
             # reward = 500.
-            reward = 100.
+            reward = 100#/(abs(self.goal_z - self.position.z)+0.01)
             self.pub_cmd_vel.publish(Twist())
             if world and target_not_movable:
                 self.reset()
-            self.goal_x, self.goal_y = self.respawn_goal.getPosition(True, delete=True)
+            self.goal_x, self.goal_y, self.goal_z = self.respawn_goal.getPosition(True, delete=True)
             self.goal_distance = self.getGoalDistace()
             self.get_goalbox = False
 
         return reward, done
 
     def step(self, action, past_action):
-        linear_vel_x = action[0]
-        angular_vel_z = action[1]
+        global UNDERWATER
+        linear_vel_x = action[0]        
+        angular_vel_y = action[1]
+        angular_vel_z = action[2]
         # angular_vel_z = action[2]
 
         vel_cmd = Twist()
         vel_cmd.linear.x = linear_vel_x
-        # vel_cmd.linear.y = linear_vel_y
+        vel_cmd.angular.y = angular_vel_y     
         vel_cmd.angular.z = angular_vel_z
+
         self.pub_cmd_vel.publish(vel_cmd)
 
         data = None
-        while data is None:
-            try:
-                data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
-            except:
-                pass
+
+        if (UNDERWATER):
+            laserscan = LaserScan()
+            for i in range(0, 8):
+                data = None
+                # print('/hydrone_aerial_underwater/sensor/ir_front_'+str(i*45))
+                while data is None:                    
+                    try:
+                        data = rospy.wait_for_message('/hydrone_aerial_underwater/sensor/ir_front_'+str(i*45), Range, timeout=5)
+                    except:
+                        pass
+
+                laserscan.ranges.append(data.range)
+                # print(data.range)
+                # print("----------------")
+
+            data = laserscan
+            # print(data)                
+        else:
+            while data is None:
+                try:
+                    data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
+                except:
+                    pass
 
         state, done = self.getState(data, past_action)
         reward, done = self.setReward(state, done)
@@ -226,6 +258,7 @@ class Env():
 
     def reset(self):
         #print('aqui2_____________---')
+        global UNDERWATER
         rospy.wait_for_service('gazebo/reset_simulation')
         try:
             self.reset_proxy()
@@ -233,17 +266,35 @@ class Env():
             print("gazebo/reset_simulation service call failed")
 
         data = None
-        while data is None:
-            try:
-                data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
-            except:
-                pass
+        if (UNDERWATER):
+            laserscan = LaserScan()
+            for i in range(0, 8):
+                while data is None:
+                    # print('/hydrone_aerial_underwater/sensor/ir_front_'+str(i*45))
+                    try:
+                        data = rospy.wait_for_message('/hydrone_aerial_underwater/sensor/ir_front_'+str(i*45), Range, timeout=5)
+                    except:
+                        pass
+
+                laserscan.ranges.append(data.range)
+
+            data = laserscan
+            # print(data)
+
+        else:
+            while data is None:
+                try:
+                    data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
+                except:
+                    pass
+
+        self.reset_fake_pitch.publish(True)
 
         if self.initGoal:
-            self.goal_x, self.goal_y = self.respawn_goal.getPosition()
+            self.goal_x, self.goal_y, self.goal_z = self.respawn_goal.getPosition()
             self.initGoal = False
         else:
-            self.goal_x, self.goal_y = self.respawn_goal.getPosition(True, delete=True)
+            self.goal_x, self.goal_y, self.goal_z = self.respawn_goal.getPosition(True, delete=True)
 
         self.goal_distance = self.getGoalDistace()
         # state, _ = self.getState(data, [0.,0., 0.0])

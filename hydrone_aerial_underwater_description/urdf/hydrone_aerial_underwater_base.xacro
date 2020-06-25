@@ -516,7 +516,39 @@
   <joint name="scan_joint" type="fixed">
     <parent link="${namespace}/base_link"/>
     <child link="base_scan"/>
-    <origin xyz="0.0 0 0.07" rpy="0 0 0"/>
+    <origin xyz="0.0 0 -0.1" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_scan">
+    <visual>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </collision>
+
+    <inertial>
+      <mass value="0.114" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0"
+              iyy="0.001" iyz="0.0"
+              izz="0.001" />
+    </inertial>
+  </link>
+
+  <!-- <joint name="scan_joint" type="fixed">
+    <parent link="${namespace}/base_link"/>
+    <child link="base_scan"/>
+    <origin xyz="0.0 0 0.0" rpy="0 0 0"/>
   </joint>
 
   <link name="base_scan">
@@ -542,12 +574,417 @@
               iyy="0.001" iyz="0.0"
               izz="0.001" />
     </inertial>
+  </link> -->
+
+  <!-- <joint name="ir_front_joint_0" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 0" xyz="0.02 0 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_0"/>
+  </joint>
+  <link name="base_ir_front_0">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 0" xyz="0.02 0 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_0"/>
+  </joint>
+  <link name="base_sonar_front_0">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
   </link>
 
-  <!-- <xacro:include filename="$(find hydrone_aerial_underwater_description)/urdf/VLP-16.urdf.xacro"/>
-  <VLP-16 parent="${namespace}/base_link" name="velodyne" topic="/velodyne_points" hz="10" samples="440" gpu="${gpu}">
-    <origin xyz="0 0 0.05" rpy="0 0 0" />
-  </VLP-16> -->
+  <joint name="ir_front_joint_45" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 0.78539816339" xyz="0.01 0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_45"/>
+  </joint>
+  <link name="base_ir_front_45">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_45" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 0.78539816339" xyz="0.01 0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_45"/>
+  </joint>
+  <link name="base_sonar_front_45">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="ir_front_joint_90" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 1.57079632679" xyz="0.0 0.02 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_90"/>
+  </joint>
+  <link name="base_ir_front_90">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_90" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 1.57079632679" xyz="0. 0.02 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_90"/>
+  </joint>
+  <link name="base_sonar_front_90">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+
+  <joint name="ir_front_joint_135" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 2.35619449019" xyz="-0.01 0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_135"/>
+  </joint>
+  <link name="base_ir_front_135">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_135" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 2.35619449019" xyz="-0.01 0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_135"/>
+  </joint>
+  <link name="base_sonar_front_135">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="ir_front_joint_180" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 3.14159265359" xyz="-0.02 0 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_180"/>
+  </joint>
+  <link name="base_ir_front_180">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_180" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 3.14159265359" xyz="-0.02 0 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_180"/>
+  </joint>
+  <link name="base_sonar_front_180">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="ir_front_joint_225" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 3.92699081699" xyz="-0.01 -0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_225"/>
+  </joint>
+  <link name="base_ir_front_225">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_225" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 3.92699081699" xyz="-0.01 -0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_225"/>
+  </joint>
+  <link name="base_sonar_front_225">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="ir_front_joint_270" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 4.71238898038" xyz="0.0 -0.02 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_270"/>
+  </joint>
+  <link name="base_ir_front_270">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_270" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 4.71238898038" xyz="0. -0.02 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_270"/>
+  </joint>
+  <link name="base_sonar_front_270">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+
+  <joint name="ir_front_joint_315" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 5.49778714378" xyz="0.01 -0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_ir_front_315"/>
+  </joint>
+  <link name="base_ir_front_315">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0"      izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="sonar_front_joint_315" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin rpy="0 0 5.49778714378" xyz="0.01 -0.01 -0.1" />
+    <parent link="${namespace}/base_link"/>
+    <child link="base_sonar_front_315"/>
+  </joint>
+  <link name="base_sonar_front_315">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link> -->
+
 
   
 

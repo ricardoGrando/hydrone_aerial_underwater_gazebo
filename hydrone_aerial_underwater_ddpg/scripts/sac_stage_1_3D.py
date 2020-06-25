@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from collections import deque
 from std_msgs.msg import *
-from environment_stage_1 import Env
+from environment_stage_1_3D import Env
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -45,7 +45,6 @@ class ReplayBuffer:
     def __len__(self):
         return len(self.buffer)
 
-
 class ValueNetwork(nn.Module):
     def __init__(self, state_dim, hidden_dim, init_w=3e-3):
         super(ValueNetwork, self).__init__()
@@ -69,8 +68,7 @@ class ValueNetwork(nn.Module):
         x = torch.relu(self.linear2(x))
         x = torch.relu(self.linear2_3(x))
         x = self.linear3(x)
-        return x
-        
+        return x        
         
 class SoftQNetwork(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_size, init_w=3e-3):
@@ -235,13 +233,13 @@ def mish(x):
 
 #----------------------------------------------------------
 
-action_dim = 2
-state_dim  = 12
-hidden_dim = 512
+action_dim = 3
+state_dim  = 55
+hidden_dim = 500
 ACTION_VX_MIN = 0.0 # m/s
-ACTION_VY_MIN = -0.25 # m/s
-ACTION_VX_MAX = 0.25 # m/s
-ACTION_VY_MAX = 0.25 # m/s
+ACTION_VY_MIN = -0.5 # m/s
+ACTION_VX_MAX = 0.5 # m/s
+ACTION_VY_MAX = 0.5 # m/s
 world = 'world'
 
 value_net        = ValueNetwork(state_dim, hidden_dim)
@@ -292,12 +290,12 @@ def load_models(episode):
 #****************************
 is_training = True
 
-ep_0 = 0
+ep_0 = 260
 
-# load_models(ep_0)   
+load_models(ep_0)   
 hard_update(target_value_net, value_net)
-max_episodes  = 10001
-max_steps   = 500
+max_episodes  = 5000
+max_steps   = 200
 rewards     = []
 batch_size  = 128
 
@@ -315,7 +313,7 @@ if __name__ == '__main__':
     result = String()
     env = Env()
     before_training = 1
-    past_action = np.array([0.,0.])
+    past_action = np.array([0.0, 0.0, 0.0])
 
     for ep in range(ep_0, max_episodes):
         done = False
@@ -341,7 +339,9 @@ if __name__ == '__main__':
 
             if not is_training:
                 action = policy_net.get_action(state, exploitation=True)
-            unnorm_action = np.array([action_unnormalized(action[0], ACTION_VX_MAX, ACTION_VX_MIN), action_unnormalized(action[1], ACTION_VY_MAX, ACTION_VY_MIN)])
+            unnorm_action = np.array([  action_unnormalized(action[0], ACTION_VX_MAX, ACTION_VX_MIN), 
+                                        action_unnormalized(action[1], ACTION_VY_MAX, ACTION_VY_MIN),
+                                        action_unnormalized(action[2], ACTION_VY_MAX, ACTION_VY_MIN)])
 
             next_state, reward, done = env.step(unnorm_action, past_action)
             # print('action', unnorm_action,'r',reward)

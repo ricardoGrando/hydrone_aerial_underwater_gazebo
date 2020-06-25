@@ -18,10 +18,12 @@ class Respawn():
         self.model = self.f.read()
         self.stage = rospy.get_param('/stage_number')
         self.goal_position = Pose()
-        self.init_goal_x = 2.0
-        self.init_goal_y = 2.0
+        self.init_goal_x = 1.0
+        self.init_goal_y = 1.0
+        self.init_goal_z = 2.0
         self.goal_position.position.x = self.init_goal_x
         self.goal_position.position.y = self.init_goal_y
+        self.goal_position.position.z = self.init_goal_z
         self.modelName = 'goal'
         self.obstacle_1 = 2.0, 2.0
         self.obstacle_2 = 2.0, -2.0
@@ -29,6 +31,7 @@ class Respawn():
         self.obstacle_4 = -2.0, -2.0
         self.last_goal_x = self.init_goal_x
         self.last_goal_y = self.init_goal_y
+        self.last_goal_z = self.init_goal_z
         self.last_index = 0
         self.sub_model = rospy.Subscriber('gazebo/model_states', ModelStates, self.checkModel)
         self.check_model = False
@@ -46,11 +49,11 @@ class Respawn():
         while True:
             if not self.check_model:
                 rospy.wait_for_service('gazebo/spawn_sdf_model')
-                self.goal_position.position.z = -3.25
+                #self.goal_position.position.z = -3.5
                 spawn_model_prox = rospy.ServiceProxy('gazebo/spawn_sdf_model', SpawnModel)
                 spawn_model_prox(self.modelName, self.model, 'robotos_name_space', self.goal_position, "world")
-                rospy.loginfo("Goal position : %.1f, %.1f", self.goal_position.position.x,
-                              self.goal_position.position.y)
+                rospy.loginfo("Goal position : %.1f, %.1f, %1f", self.goal_position.position.x,
+                              self.goal_position.position.y, self.goal_position.position.z)
                 break
             else:
                 pass
@@ -68,54 +71,54 @@ class Respawn():
         # self.index = 0
 
     def getPosition(self, position_check=False, delete=False):
-    
         if delete:
             self.deleteModel()
 
         if self.stage != 4:
             while position_check:
-                goal_x = random.randrange(-45, 45) / 10.0
-                goal_y = random.randrange(-45, 45) / 10.0
-                if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
+                goal_x = random.randrange(0, 25) / 10.0
+                goal_y = random.randrange(-25, 25) / 10.0
+                goal_z = random.randrange(5, 25) / 10.0
+                # if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
+                #     position_check = True
+                # elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
+                #     position_check = True
+                # elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
+                #     position_check = True
+                # elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
+                #     position_check = True
+                position_check = False
+                
+                if abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
                     position_check = True
-                elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
-                    position_check = True
-                elif abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
-                    position_check = True
-                else:
-                    position_check = False
+                # else:                
 
                 if abs(goal_x - self.last_goal_x) < 1 and abs(goal_y - self.last_goal_y) < 1:
                     position_check = True
 
                 self.goal_position.position.x = goal_x
                 self.goal_position.position.y = goal_y
+                self.goal_position.position.z = goal_z
             
-        # goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
-        # goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+        # goal_x_list = [3.6, -3.6, -3.6, 0.0]
+        # goal_y_list = [2.6, 3.0, 1.0, 0.0]
+        # goal_x_list = [1.5, 0.0, -1.5, -1.5, 0.0, 1.5, 0.0]
+        # goal_y_list = [1.5, 1.5, 1.5, -1.5, -1.5, -1.5, 0.0]
+        # goal_z_list = [0.5, 1.0, 1.5, 1.0, 1.5, 1.0, 1.5]
 
-        # if self.index < 70:
-
-        #     t = float(self.index) / 25 * math.pi
-        #     dx = (0.5*t) * math.cos(t)
-        #     dy = (0.5*t) * math.sin(t)
-
-        #     print(dx,dy)
-
-        #     self.goal_position.position.x = dx
-        #     self.goal_position.position.y = dy
+        # self.goal_position.position.x = goal_x_list[self.index]
+        # self.goal_position.position.y = goal_y_list[self.index]
+        # self.goal_position.position.z = goal_z_list[self.index]
         
-        #     self.index += 1
-        #     print(self.index)
+        # self.index += 1
+        # print(self.index)
 
         time.sleep(0.5)
         self.respawnModel()
+        time.sleep(0.5)
 
         self.last_goal_x = self.goal_position.position.x
         self.last_goal_y = self.goal_position.position.y
+        self.last_goal_z = self.goal_position.position.z
        
-        return self.goal_position.position.x, self.goal_position.position.y
+        return self.goal_position.position.x, self.goal_position.position.y, self.goal_position.position.z

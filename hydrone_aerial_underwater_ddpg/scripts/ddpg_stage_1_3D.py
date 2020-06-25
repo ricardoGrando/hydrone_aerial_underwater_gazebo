@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from collections import deque
 from std_msgs.msg import *
-from environment_stage_1 import Env
+from environment_stage_1_3D import Env
 import torch
 import torch.nn.functional as F
 import gc
@@ -18,7 +18,6 @@ import torch.nn as nn
 import math
 from collections import deque
 import copy
-import math
 
 #---Directory Path---#
 dirPath = os.path.dirname(os.path.realpath(__file__))
@@ -140,9 +139,11 @@ class Actor(nn.Module):
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
+            action[2] = torch.tanh(action[2])*self.action_limit_w
         else:
             action[:,0] = torch.sigmoid(action[:,0])*self.action_limit_v
             action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
+            action[:,2] = torch.tanh(action[:,2])*self.action_limit_w            
         return action
 
 #---Memory Buffer---#
@@ -298,23 +299,16 @@ is_training = True
 exploration_decay_rate = 0.001
 
 MAX_EPISODES = 10001
-MAX_STEPS = 500
+MAX_STEPS = 200
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
-STATE_DIMENSION = 12
-ACTION_DIMENSION = 2
-ACTION_V_MAX = 0.25 # m/s
+STATE_DIMENSION = 25
+ACTION_DIMENSION = 3
+ACTION_V_MAX = 0.5 # m/s
 ACTION_V_MIN = 0.0
-ACTION_W_MAX = 0.25 # rad/s
+ACTION_W_MAX = 1.0 # rad/s
 world = 'stage_1'
-
-if is_training:
-    var_v = ACTION_V_MAX*.5
-    var_w = ACTION_W_MAX*2*.5
-else:
-    var_v = ACTION_V_MAX*0.10
-    var_w = ACTION_W_MAX*0.10
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
@@ -322,8 +316,8 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 3200
-trainer.load_models(ep_start)
+ep_start = 0
+# trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
@@ -367,8 +361,10 @@ if __name__ == '__main__':
                 N = copy.deepcopy(noise.get_noise(t=step))
                 N[0] = N[0]*ACTION_V_MAX/2
                 N[1] = N[1]*ACTION_W_MAX
+                N[2] = N[2]*ACTION_W_MAX
                 action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
                 action[1] = np.clip(action[1] + N[1], -ACTION_W_MAX, ACTION_W_MAX)
+                action[2] = np.clip(action[2] + N[2], -ACTION_W_MAX, ACTION_W_MAX)
             else:
                 action = trainer.get_exploration_action(state)
 

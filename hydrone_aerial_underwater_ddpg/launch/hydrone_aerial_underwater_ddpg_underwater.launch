@@ -4,7 +4,7 @@
 
   <arg name="x" default="0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="y" default="0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
-  <arg name="z" default="1.5" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="z" default="-3.5" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
   <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
   <arg name="yaw" default="0.0" doc="Yaw angle of the vehicle's initial orientation"/>
@@ -13,7 +13,7 @@
   <arg name="namespace" default="hydrone_aerial_underwater" doc="Namespace to spawn the vehicle"/>
   <arg name="use_simplified_mesh" default="false" doc="Use simplified geometries instead of the mesh"/>
   
-  <arg name="world_name" default="stage_1"/>
+  <arg name="world_name" default="stage_1_underwater"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
 
@@ -55,7 +55,7 @@
       <!-- <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" /> -->
     </node>
 
-    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity_3D.py" />    
+    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity.py" />    
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
