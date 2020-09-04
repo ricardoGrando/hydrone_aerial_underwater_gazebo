@@ -330,7 +330,7 @@ ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
 ep_start = 0
-trainer.load_models(ep_start)
+# trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
