@@ -12,8 +12,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>hydrone_aerial_underwater_description</exec_depend>
-  <exec_depend>hydrone_aerial_underwater_control</exec_depend>
+  <exec_depend>hydrone_aerial_underwater_description</exec_depend>  
 
   <depend>gazebo_msgs</depend>
   <depend>gazebo_plugins</depend>

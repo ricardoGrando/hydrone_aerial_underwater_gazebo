@@ -46,7 +46,7 @@ class Respawn():
         while True:
             if not self.check_model:
                 rospy.wait_for_service('gazebo/spawn_sdf_model')
-                self.goal_position.position.z = -3.25
+                self.goal_position.position.z = 1.0
                 spawn_model_prox = rospy.ServiceProxy('gazebo/spawn_sdf_model', SpawnModel)
                 spawn_model_prox(self.modelName, self.model, 'robotos_name_space', self.goal_position, "world")
                 rospy.loginfo("Goal position : %.1f, %.1f", self.goal_position.position.x,
@@ -74,8 +74,8 @@ class Respawn():
 
         if self.stage != 4:
             while position_check:
-                goal_x = random.randrange(-45, 45) / 10.0
-                goal_y = random.randrange(-45, 45) / 10.0
+                goal_x = random.randrange(-40, 40) / 10.0
+                goal_y = random.randrange(-40, 40) / 10.0
                 if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
                     position_check = True
                 elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
@@ -97,6 +97,14 @@ class Respawn():
             
         # goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
         # goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+
+        # # goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
+        # # goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
+        
+        # self.goal_position.position.x = goal_x_list[self.index]
+        # self.goal_position.position.y = goal_y_list[self.index]
+
+        # self.index += 1
 
         # if self.index < 70:
 

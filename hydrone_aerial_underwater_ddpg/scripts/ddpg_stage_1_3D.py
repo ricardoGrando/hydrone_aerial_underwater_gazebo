@@ -299,15 +299,15 @@ is_training = True
 exploration_decay_rate = 0.001
 
 MAX_EPISODES = 10001
-MAX_STEPS = 200
+MAX_STEPS = 500
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
 STATE_DIMENSION = 25
 ACTION_DIMENSION = 3
-ACTION_V_MAX = 0.5 # m/s
+ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
-ACTION_W_MAX = 1.0 # rad/s
+ACTION_W_MAX = 0.25 # rad/s
 world = 'stage_1'
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
@@ -316,8 +316,8 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 0
-# trainer.load_models(ep_start)
+ep_start = 3780
+trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')

@@ -2,6 +2,6 @@
   <arg name="stage" default="1"/>
   <param name="stage_number"  value="$(arg stage)"/>
   <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
-  <node pkg="hydrone_aerial_underwater_ddpg" type="sac_stage_1_3D.py" name="sac_stage_1" output="screen" />
+  <node pkg="hydrone_aerial_underwater_ddpg" type="sac_stage_1_3D.py" name="sac_stage_1_3D" output="screen" />
   <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk.py" name="store_disk" output="screen" />
 </launch>

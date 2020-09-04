@@ -16,7 +16,7 @@ class Respawn():
                                                 'hydrone_aerial_underwater_ddpg/models/goal_box/model.sdf')
         self.f = open(self.modelPath, 'r')
         self.model = self.f.read()
-        self.stage = rospy.get_param('/stage_number')
+        self.stage = 0
         self.goal_position = Pose()
         self.init_goal_x = 1.0
         self.init_goal_y = 1.0
@@ -76,9 +76,9 @@ class Respawn():
 
         if self.stage != 4:
             while position_check:
-                goal_x = random.randrange(0, 25) / 10.0
-                goal_y = random.randrange(-25, 25) / 10.0
-                goal_z = random.randrange(5, 25) / 10.0
+                goal_x = random.randrange(0, 40) / 10.0
+                goal_y = random.randrange(-40, 40) / 10.0
+                goal_z = random.randrange(5, 40) / 10.0
                 # if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
                 #     position_check = True
                 # elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
@@ -100,11 +100,12 @@ class Respawn():
                 self.goal_position.position.y = goal_y
                 self.goal_position.position.z = goal_z
             
-        # goal_x_list = [3.6, -3.6, -3.6, 0.0]
-        # goal_y_list = [2.6, 3.0, 1.0, 0.0]
-        # goal_x_list = [1.5, 0.0, -1.5, -1.5, 0.0, 1.5, 0.0]
-        # goal_y_list = [1.5, 1.5, 1.5, -1.5, -1.5, -1.5, 0.0]
-        # goal_z_list = [0.5, 1.0, 1.5, 1.0, 1.5, 1.0, 1.5]
+        # goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
+        # goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
+        # goal_z_list = [2.5, 1.0, 1.0, 1.5, 2.5]
+        # # goal_x_list = [1.5, 0.0, -1.5, -1.5, 0.0, 1.5, 0.0]
+        # # goal_y_list = [1.5, 1.5, 1.5, -1.5, -1.5, -1.5, 0.0]
+        # # goal_z_list = [2.5, 1.0, 2.5, 1.0, 2.5, 1.0, 2.5]
 
         # self.goal_position.position.x = goal_x_list[self.index]
         # self.goal_position.position.y = goal_y_list[self.index]

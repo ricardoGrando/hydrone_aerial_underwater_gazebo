@@ -1,0 +1,6 @@
+<launch>
+  <arg name="stage" default="1"/>
+  <param name="stage_number"  value="$(arg stage)"/>
+  <node pkg="hydrone_aerial_underwater_ddpg" type="test_pid.py" name="test_pid" output="screen" />
+  <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk.py" name="store_disk" output="screen" /> -->
+</launch>

@@ -10,20 +10,20 @@ from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
-# # pathfollowing
-# world = False
-# if world:
-#     from respawnGoal_custom_worlds import Respawn
-# else:
-#     from respawnGoal import Respawn
-# import copy
-# target_not_movable = False
-
-# Navegation
-world = True
-from respawnGoal import Respawn
+# pathfollowing
+world = False
+if world:
+    from respawnGoal_custom_worlds import Respawn
+else:
+    from respawnGoal import Respawn
 import copy
-target_not_movable = True
+target_not_movable = False
+
+# # Navegation
+# world = True
+# from respawnGoal import Respawn
+# import copy
+# target_not_movable = True
 
 class Env():
     def __init__(self, action_dim=2):
@@ -109,78 +109,7 @@ class Env():
         return scan_range + [heading, current_distance], done
 
     def setReward(self, state, done):
-        current_distance = state[-1]
-        heading = state[-2]
-        #print('cur:', current_distance, self.past_distance)
-
         reward = 0
-
-        distance_rate = (self.past_distance - current_distance) 
-        # if distance_rate > 0:
-        #     # reward = 200.*distance_rate
-        reward = 1.0*(distance_rate)
-
-        # min_ran = min(scan.ranges)
-
-        # if ( min_ran > 1.0 ):
-        #     reward = 0.1/min_ran
-        # else:
-        #     reward = -1.0/min_ran
-
-        # if (abs(self.heading) < math.pi/2):
-        #     if abs(self.heading) <= 0.01:
-        #         self.heading = 0.01
-
-        #     if abs(0.1/(self.heading)) < 10.0 and (scan.ranges[0] > current_distance):
-        #         reward += abs(1.0/(self.heading))/scan.ranges[0]
-        #     elif abs(0.1/(self.heading)) > 10.0 and (scan.ranges[0] > current_distance):
-        #         reward += 10.0/scan.ranges[0]
-
-            # if (current_distance < 1.0):
-            #     reward += 1.0/current_distance
-                
-        # # if (current_distance >= 1.0):
-        # #     reward += -0.1*current_distance
-
-        # print(abs(1.0/(self.heading)), scan.ranges[0], current_distance)
-        # print(reward)
-        # # # if distance_rate == 0:
-        # # #     reward = 0.
-
-        # if distance_rate <= 0:
-        #     # reward = -8.
-        #     reward = -1.0/current_distance.
-
-        # print(reward)
-
-        #angle_reward = math.pi - abs(heading)
-        #print('d', 500*distance_rate)
-        #reward = 500.*distance_rate #+ 3.*angle_reward
-        self.past_distance = current_distance
-
-        # a, b, c, d = float('{0:.3f}'.format(self.position.x)), float('{0:.3f}'.format(self.past_position.x)), float('{0:.3f}'.format(self.position.y)), float('{0:.3f}'.format(self.past_position.y))
-        # if a == b and c == d:
-        #     # rospy.loginfo('\n<<<<<Stopped>>>>>\n')
-        #     # print('\n' + str(a) + ' ' + str(b) + ' ' + str(c) + ' ' + str(d) + '\n')
-        #     self.stopped += 1
-        #     print(self.stopped)
-        #     if self.stopped == 20:
-        #         rospy.loginfo('Robot is in the same 10 times in a row')
-        #         self.stopped = 0
-        #         done = True
-        # data = None
-        # while data is None:
-        #     try:
-        #         data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
-        #     except:
-        #         pass
-        # print(data.ranges)
-
-        # if (min(data.ranges) < 0.6):            
-        #     done = True
-        # else:
-        #     # rospy.loginfo('\n>>>>> not stopped>>>>>\n')
-        #     self.stopped = 0
 
         if done:
             rospy.loginfo("Collision!!")

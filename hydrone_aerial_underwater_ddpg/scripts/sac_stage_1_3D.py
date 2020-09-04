@@ -71,10 +71,36 @@ class ValueNetwork(nn.Module):
         return x        
         
 class SoftQNetwork(nn.Module):
+    # def __init__(self, num_inputs, num_actions, hidden_size, init_w=3e-3):
+    #     super(SoftQNetwork, self).__init__()
+        
+    #     self.linear1 = nn.Linear(num_inputs + num_actions, hidden_size)
+    #     self.linear2 = nn.Linear(hidden_size, hidden_size)
+    #     self.linear2_3 = nn.Linear(hidden_size, hidden_size)
+    #     self.linear3 = nn.Linear(hidden_size, 1)
+        
+    #     self.linear1.weight.data.uniform_(-init_w, init_w)
+    #     self.linear1.bias.data.uniform_(-init_w, init_w)
+    #     self.linear2.weight.data.uniform_(-init_w, init_w)
+    #     self.linear2.bias.data.uniform_(-init_w, init_w)
+    #     self.linear2_3.weight.data.uniform_(-init_w, init_w)
+    #     self.linear2_3.bias.data.uniform_(-init_w, init_w)
+    #     self.linear3.weight.data.uniform_(-init_w, init_w)
+    #     self.linear3.bias.data.uniform_(-init_w, init_w)
+        
+    # def forward(self, state, action):
+    #     x = torch.cat([state, action], 1)
+    #     x = torch.relu(self.linear1(x))
+    #     x = torch.relu(self.linear2(x))
+    #     x = torch.relu(self.linear2_3(x))
+    #     x = self.linear3(x)
+    #     return x
+    
     def __init__(self, num_inputs, num_actions, hidden_size, init_w=3e-3):
         super(SoftQNetwork, self).__init__()
         
-        self.linear1 = nn.Linear(num_inputs + num_actions, hidden_size)
+        self.linear1 = nn.Linear(num_inputs, hidden_size/2)
+        self.linear1_1 = nn.Linear(num_actions, hidden_size/2)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear2_3 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, 1)
@@ -89,10 +115,16 @@ class SoftQNetwork(nn.Module):
         self.linear3.bias.data.uniform_(-init_w, init_w)
         
     def forward(self, state, action):
-        x = torch.cat([state, action], 1)
-        x = torch.relu(self.linear1(x))
+        xs = torch.relu(self.linear1(state))
+        xa = torch.relu(self.linear1_1(action))
+        x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.linear2(x))
         x = torch.relu(self.linear2_3(x))
+        # xs = mish(self.linear1(state))
+        # xa = mish(self.linear1_1(action))
+        # x = torch.cat((xs,xa), dim=1)
+        # x = mish(self.linear2(x))
+        # x = mish(self.linear2_3(x))
         x = self.linear3(x)
         return x
         
@@ -234,12 +266,12 @@ def mish(x):
 #----------------------------------------------------------
 
 action_dim = 3
-state_dim  = 55
-hidden_dim = 500
+state_dim  = 25
+hidden_dim = 512
 ACTION_VX_MIN = 0.0 # m/s
-ACTION_VY_MIN = -0.5 # m/s
-ACTION_VX_MAX = 0.5 # m/s
-ACTION_VY_MAX = 0.5 # m/s
+ACTION_VY_MIN = -0.25 # m/s
+ACTION_VX_MAX = 0.25 # m/s
+ACTION_VY_MAX = 0.25 # m/s
 world = 'world'
 
 value_net        = ValueNetwork(state_dim, hidden_dim)
@@ -290,12 +322,12 @@ def load_models(episode):
 #****************************
 is_training = True
 
-ep_0 = 260
+ep_0 = 4860
 
 load_models(ep_0)   
 hard_update(target_value_net, value_net)
 max_episodes  = 5000
-max_steps   = 200
+max_steps   = 500
 rewards     = []
 batch_size  = 128
 

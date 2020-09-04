@@ -91,9 +91,15 @@ class Critic(nn.Module):
         # self.fca1.weight.data.uniform_(-EPS, EPS)
         # self.fca1.bias.data.uniform_(-EPS, EPS)
         
-        self.fca2 = nn.Linear(512, 1)
+        self.fca2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
+        # self.fca2.weight.data.uniform_(-EPS, EPS)
+        # self.fca2.bias.data.uniform_(-EPS, EPS)
+
+        self.fca3 = nn.Linear(512, 1)
+        nn.init.xavier_uniform_(self.fca3.weight)
+        self.fca3.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
         
@@ -102,7 +108,8 @@ class Critic(nn.Module):
         xa = torch.relu(self.fa1(action))
         x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.fca1(x))
-        vs = self.fca2(x)
+        x = torch.relu(self.fca2(x))
+        vs = self.fca3(x)
         return vs
 
 #---Actor---#
@@ -127,16 +134,23 @@ class Actor(nn.Module):
         # self.fa2.weight.data.uniform_(-EPS, EPS)
         # self.fa2.bias.data.uniform_(-EPS, EPS)
         
-        self.fa3 = nn.Linear(512, action_dim)
+        self.fa3 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fa3.weight)
         self.fa3.bias.data.fill_(0.01)
+        # self.fa3.weight.data.uniform_(-EPS, EPS)
+        # self.fa3.bias.data.uniform_(-EPS, EPS)
+
+        self.fa4 = nn.Linear(512, action_dim)
+        nn.init.xavier_uniform_(self.fa4.weight)
+        self.fa4.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
         
     def forward(self, state):
         x = torch.relu(self.fa1(state))
         x = torch.relu(self.fa2(x))
-        action = self.fa3(x)
+        x = torch.relu(self.fa3(x))
+        action = self.fa4(x)
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
@@ -289,7 +303,7 @@ def mish(x):
             x: output of a layer of a neural network
         return: mish activation function
     '''
-    return x*(torch.tanh(F.softplus(x)))
+    return torch.clamp(x*(torch.tanh(F.softplus(x))),max=6)
 
 #---Run agent---#
 
@@ -302,27 +316,20 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
-STATE_DIMENSION = 12
+STATE_DIMENSION = 24
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
-ACTION_W_MAX = 0.25 # rad/s
-world = 'stage_1'
-
-if is_training:
-    var_v = ACTION_V_MAX*.5
-    var_w = ACTION_W_MAX*2*.5
-else:
-    var_v = ACTION_V_MAX*0.10
-    var_w = ACTION_W_MAX*0.10
+ACTION_W_MAX = 0.25 # rad
+world = 'ddpg_stage_1'
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
-print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad/s')
+print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad')
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 3200
+ep_start = 260
 trainer.load_models(ep_start)
 
 if __name__ == '__main__':
@@ -356,17 +363,12 @@ if __name__ == '__main__':
         for step in range(MAX_STEPS):
             state = np.float32(state)
 
-            if is_training and not ep%10 == 0:
+            if is_training:
                 action = trainer.get_exploration_action(state)
-                # action[0] = np.clip(
-                #     np.random.normal(action[0], var_v), 0., ACTION_V_MAX)
-                # action[0] = np.clip(np.clip(
-                #     action[0] + np.random.uniform(-var_v, var_v), action[0] - var_v, action[0] + var_v), 0., ACTION_V_MAX)
-                # action[1] = np.clip(
-                #     np.random.normal(action[1], var_w), -ACTION_W_MAX, ACTION_W_MAX)
-                N = copy.deepcopy(noise.get_noise(t=step))
-                N[0] = N[0]*ACTION_V_MAX/2
-                N[1] = N[1]*ACTION_W_MAX
+                
+                N = copy.deepcopy(noise.get_noise(t=step))                
+                N[0] = np.clip(N[0], -1.0, 1.0)*ACTION_V_MAX/2
+                N[1] = np.clip(N[0], -1.0, 1.0)*ACTION_W_MAX
                 action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
                 action[1] = np.clip(action[1] + N[1], -ACTION_W_MAX, ACTION_W_MAX)
             else:
@@ -391,8 +393,6 @@ if __name__ == '__main__':
             
 
             if ram.len >= before_training*MAX_STEPS and is_training and not ep%10 == 0:
-                # var_v = max([var_v*0.99999, 0.005*ACTION_V_MAX])
-                # var_w = max([var_w*0.99999, 0.01*ACTION_W_MAX])
                 trainer.optimizer()
 
             if done or step == MAX_STEPS-1:

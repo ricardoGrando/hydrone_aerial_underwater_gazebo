@@ -4,13 +4,16 @@ import rospy
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 
+NAME = 'ddpg_env2_2d'
+
 def store_disk(data):
-    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/resultSAC_env1_under.csv', 'a')
+    global NAME
+    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/'+NAME+'.csv', 'a')
     file_object.write(data.data+'\n')
 
 def pose_callback(data):
     # print(data.position.x)
-    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/position_ddpg_1_3D.csv', 'a')
+    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/position_sac_2_air_waypoint_3d.csv', 'a')
     file_object.write(str(data.position.x)+","+str(data.position.y)+","+str(data.position.z)+'\n')
     # time.sleep(0.1)
     # print(data)

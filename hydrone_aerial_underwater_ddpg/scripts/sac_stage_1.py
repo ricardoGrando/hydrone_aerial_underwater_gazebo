@@ -68,6 +68,9 @@ class ValueNetwork(nn.Module):
         x = torch.relu(self.linear1(state))
         x = torch.relu(self.linear2(x))
         x = torch.relu(self.linear2_3(x))
+        # x = mish(self.linear1(state))
+        # x = mish(self.linear2(x))
+        # x = mish(self.linear2_3(x))
         x = self.linear3(x)
         return x
         
@@ -76,7 +79,8 @@ class SoftQNetwork(nn.Module):
     def __init__(self, num_inputs, num_actions, hidden_size, init_w=3e-3):
         super(SoftQNetwork, self).__init__()
         
-        self.linear1 = nn.Linear(num_inputs + num_actions, hidden_size)
+        self.linear1 = nn.Linear(num_inputs, hidden_size/2)
+        self.linear1_1 = nn.Linear(num_actions, hidden_size/2)
         self.linear2 = nn.Linear(hidden_size, hidden_size)
         self.linear2_3 = nn.Linear(hidden_size, hidden_size)
         self.linear3 = nn.Linear(hidden_size, 1)
@@ -91,10 +95,16 @@ class SoftQNetwork(nn.Module):
         self.linear3.bias.data.uniform_(-init_w, init_w)
         
     def forward(self, state, action):
-        x = torch.cat([state, action], 1)
-        x = torch.relu(self.linear1(x))
+        xs = torch.relu(self.linear1(state))
+        xa = torch.relu(self.linear1_1(action))
+        x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.linear2(x))
         x = torch.relu(self.linear2_3(x))
+        # xs = mish(self.linear1(state))
+        # xa = mish(self.linear1_1(action))
+        # x = torch.cat((xs,xa), dim=1)
+        # x = mish(self.linear2(x))
+        # x = mish(self.linear2_3(x))
         x = self.linear3(x)
         return x
         
@@ -125,6 +135,8 @@ class PolicyNetwork(nn.Module):
     def forward(self, state):
         x = torch.relu(self.linear1(state))
         x = torch.relu(self.linear2(x))
+        # x = mish(self.linear1(state))
+        # x = mish(self.linear2(x))
         
         mean    = self.mean_linear(x)
         log_std = self.log_std_linear(x)
@@ -153,12 +165,19 @@ class PolicyNetwork(nn.Module):
         
         normal = Normal(mean, std)
         z      = normal.sample()
+        # print(z)
         action = torch.tanh(z)
+        action[0][0] = torch.sigmoid(z[0][0])
         if exploitation:
             action = torch.tanh(mean)
+            action[0][0] = torch.sigmoid(mean[0][0])
+
+        # print(action[0][0])
+        
         #action = z.detach().numpy()
         
         action  = action.detach().numpy()
+        # print(action)
         return action[0]
 
 
@@ -182,7 +201,6 @@ def soft_q_update(batch_size,
     expected_value   = value_net(state)
     new_action, log_prob, z, mean, log_std = policy_net.evaluate(state)
 
-
     target_value = target_value_net(next_state)
     next_q_value = reward + (1 - done) * gamma * target_value
     q_value_loss = soft_q_criterion(expected_q_value, next_q_value.detach())
@@ -192,8 +210,7 @@ def soft_q_update(batch_size,
     value_loss = value_criterion(expected_value, next_value.detach())
 
     log_prob_target = expected_new_q_value - expected_value
-    policy_loss = (log_prob * (log_prob - log_prob_target).detach()).mean()
-    
+    policy_loss = (log_prob * (log_prob - log_prob_target).detach()).mean()    
 
     mean_loss = mean_lambda * mean.pow(2).mean()
     std_loss  = std_lambda  * log_std.pow(2).mean()
@@ -236,13 +253,13 @@ def mish(x):
 #----------------------------------------------------------
 
 action_dim = 2
-state_dim  = 12
+state_dim  = 24
 hidden_dim = 512
 ACTION_VX_MIN = 0.0 # m/s
 ACTION_VY_MIN = -0.25 # m/s
 ACTION_VX_MAX = 0.25 # m/s
 ACTION_VY_MAX = 0.25 # m/s
-world = 'world'
+world = 'sac_stage_1'
 
 value_net        = ValueNetwork(state_dim, hidden_dim)
 target_value_net = ValueNetwork(state_dim, hidden_dim)
@@ -274,10 +291,10 @@ print('Action Dimensions: ' + str(action_dim))
 print('Action Max: ' + str(ACTION_VX_MAX) + ' m/s and ' + str(ACTION_VY_MAX) + ' m/s')
 #-----------------------------------------------------
 def save_models(episode_count):
-    torch.save(policy_net.state_dict(), dirPath + '/SAC_Models/' + world + '/'+str(episode_count)+ '_policy_net.pth')
-    torch.save(value_net.state_dict(), dirPath + '/SAC_Models/' + world + '/'+str(episode_count)+ 'value_net.pth')
-    torch.save(soft_q_net.state_dict(), dirPath + '/SAC_Models/' + world + '/' + str(episode_count)+ 'soft_q_net.pth')
-    torch.save(target_value_net.state_dict(), dirPath + '/SAC_Models/' + world + '/' + str(episode_count)+ 'target_value_net.pth')
+    torch.save(policy_net.state_dict(), dirPath + '/Models/' + world + '/'+str(episode_count)+ '_policy_net.pth')
+    torch.save(value_net.state_dict(), dirPath + '/Models/' + world + '/'+str(episode_count)+ 'value_net.pth')
+    torch.save(soft_q_net.state_dict(), dirPath + '/Models/' + world + '/' + str(episode_count)+ 'soft_q_net.pth')
+    torch.save(target_value_net.state_dict(), dirPath + '/Models/' + world + '/' + str(episode_count)+ 'target_value_net.pth')
     print("====================================")
     print("Model has been saved...")
     print("====================================")
@@ -305,6 +322,15 @@ batch_size  = 128
 def action_unnormalized(action, high, low):
     action = low + (action + 1.0) * 0.5 * (high - low)
     action = np.clip(action, low, high)
+    #print(action)
+    return action
+#**********************************
+
+#----------------------------------------
+def action_unnormalized_sigmoid(action, high, low):
+    action = low + (action) * (high - low)
+    action = np.clip(action, low, high)
+    #print(action)
     return action
 #**********************************
 
@@ -334,15 +360,15 @@ if __name__ == '__main__':
         for step in range(max_steps):
             state = np.float32(state)
             # print('state___', state)
-            if is_training and ep%2 == 0 and len(replay_buffer) > before_training*batch_size:
+            if is_training and ep%2 == 0:# and len(replay_buffer) > before_training*batch_size:
                 action = policy_net.get_action(state)
             else:
                 action = policy_net.get_action(state, exploitation=True)
 
             if not is_training:
                 action = policy_net.get_action(state, exploitation=True)
-            unnorm_action = np.array([action_unnormalized(action[0], ACTION_VX_MAX, ACTION_VX_MIN), action_unnormalized(action[1], ACTION_VY_MAX, ACTION_VY_MIN)])
-
+            unnorm_action = np.array([action_unnormalized_sigmoid(action[0], ACTION_VX_MAX, ACTION_VX_MIN), action_unnormalized(action[1], ACTION_VY_MAX, ACTION_VY_MIN)])
+            # print(unnorm_action)
             next_state, reward, done = env.step(unnorm_action, past_action)
             # print('action', unnorm_action,'r',reward)
             past_action = copy.deepcopy(action)

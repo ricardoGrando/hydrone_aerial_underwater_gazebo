@@ -69,7 +69,7 @@ def position_callback(data):
 
     cmd_vel.linear.z = cmd_vel_lin*math.cos(fake_pitch)
 
-    cmd_vel.linear.z += -2.143
+    # cmd_vel.linear.z += -2.143
     # cmd_vel.linear.z += -2.38
     # cmd_vel.linear.z = -0.02
     

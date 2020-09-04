@@ -102,7 +102,8 @@ class Env():
                 scan_range.append(scan.ranges[i])
 
 
-        if min_range > min(scan_range): #or self.position.z < 0.2 or self.position.z > 2.8:
+        if min_range > min(scan_range) or self.position.z < 0.2 or self.position.z > 4.8:
+            print(scan_range)
             done = True
 
         for pa in past_action:
@@ -128,7 +129,7 @@ class Env():
         distance_rate = (self.past_distance - current_distance) 
         # if distance_rate > 0:
         #     # reward = 200.*distance_rate
-        reward = 10.0*(distance_rate)
+        reward = 1.0*(distance_rate)
 
         # min_ran = min(scan.ranges)
 
