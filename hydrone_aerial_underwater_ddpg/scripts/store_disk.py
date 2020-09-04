@@ -8,7 +8,7 @@ NAME = 'ddpg_env2_2d'
 
 def store_disk(data):
     global NAME
-    file_object = open('~/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
+    file_object = open('/content/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
     file_object.write(data.data+'\n')
 
 def pose_callback(data):

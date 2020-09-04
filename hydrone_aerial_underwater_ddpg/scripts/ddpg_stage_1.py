@@ -389,8 +389,8 @@ if __name__ == '__main__':
                         ram.add(state, action, reward, next_state, done)
                 else:
                     ram.add(state, action, reward, next_state, done)
-            state = copy.deepcopy(next_state)
-            
+
+            state = copy.deepcopy(next_state)            
 
             if ram.len >= before_training*MAX_STEPS and is_training and not ep%10 == 0:
                 trainer.optimizer()
@@ -408,7 +408,7 @@ if __name__ == '__main__':
                     result = (str(ep)+','+str(rewards_current_episode))
                     pub_result.publish(result)
                 break
-        if ep%20 == 0:
+        if ep%2 == 0:
             trainer.save_models(ep)
 
 print('Completed Training')
