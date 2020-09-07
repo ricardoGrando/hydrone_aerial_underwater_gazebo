@@ -329,8 +329,8 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 0
-# trainer.load_models(ep_start)
+ep_start = 2020
+trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
@@ -408,7 +408,7 @@ if __name__ == '__main__':
                     result = (str(ep)+','+str(rewards_current_episode))
                     pub_result.publish(result)
                 break
-        if ep%2 == 0:
+        if ep%20 == 0:
             trainer.save_models(ep)
 
 print('Completed Training')
