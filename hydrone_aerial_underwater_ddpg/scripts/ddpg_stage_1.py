@@ -97,7 +97,7 @@ class Critic(nn.Module):
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
-        self.fca3 = nn.Linear(512, 512)
+        self.fca3 = nn.Linear(512, 1)
         nn.init.xavier_uniform_(self.fca3.weight)
         self.fca3.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
@@ -147,7 +147,7 @@ class Actor(nn.Module):
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
 
-        self.fa4 = nn.Linear(512, 512)
+        self.fa4 = nn.Linear(512, action_dim)
         nn.init.xavier_uniform_(self.fa4.weight)
         self.fa4.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS, EPS)
