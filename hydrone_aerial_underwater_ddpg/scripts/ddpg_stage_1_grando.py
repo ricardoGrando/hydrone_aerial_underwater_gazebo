@@ -91,18 +91,32 @@ class Critic(nn.Module):
         # self.fca1.weight.data.uniform_(-EPS, EPS)
         # self.fca1.bias.data.uniform_(-EPS, EPS)
         
-        self.fca2 = nn.Linear(512, 1)
+        self.fca2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
+
+        self.fca3 = nn.Linear(512, 1)
+        nn.init.xavier_uniform_(self.fca3.weight)
+        self.fca3.bias.data.fill_(0.01)
+        # self.fca2.weight.data.uniform_(-EPS, EPS)
+        # self.fca2.bias.data.uniform_(-EPS, EPS)
+
+        # self.fca4 = nn.Linear(512, 1)
+        # nn.init.xavier_uniform_(self.fca4.weight)
+        # self.fca4.bias.data.fill_(0.01)
+        # # self.fca2.weight.data.uniform_(-EPS, EPS)
+        # # self.fca2.bias.data.uniform_(-EPS, EPS)
         
     def forward(self, state, action):
         xs = torch.relu(self.fc1(state))
         xa = torch.relu(self.fa1(action))
         x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.fca1(x))
-        vs = self.fca2(x)
+        x = torch.relu(self.fca2(x))
+        # x = torch.relu(self.fca3(x))
+        vs = self.fca3(x)
         return vs
 
 #---Actor---#
@@ -127,26 +141,36 @@ class Actor(nn.Module):
         # self.fa2.weight.data.uniform_(-EPS, EPS)
         # self.fa2.bias.data.uniform_(-EPS, EPS)
         
-        self.fa3 = nn.Linear(512, action_dim)
+        self.fa3 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fa3.weight)
         self.fa3.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
+
+        self.fa4 = nn.Linear(512, action_dim)
+        nn.init.xavier_uniform_(self.fa4.weight)
+        self.fa4.bias.data.fill_(0.01)
+        # self.fa3.weight.data.uniform_(-EPS, EPS)
+        # self.fa3.bias.data.uniform_(-EPS, EPS)
+
+        # self.fa5 = nn.Linear(512, action_dim)
+        # nn.init.xavier_uniform_(self.fa5.weight)
+        # self.fa5.bias.data.fill_(0.01)
+        # # self.fa3.weight.data.uniform_(-EPS, EPS)
+        # # self.fa3.bias.data.uniform_(-EPS, EPS)
         
     def forward(self, state):
         x = torch.relu(self.fa1(state))
         x = torch.relu(self.fa2(x))
-        action = self.fa3(x)
-        # if state.shape <= torch.Size([self.state_dim]):
-        #     # action[0] = torch.sigmoid(action[0])*self.action_limit_v
-        #     # action[1] = torch.tanh(action[1])*self.action_limit_w
-        #     action[0] = torch.linear(action[0])*self.action_limit_v
-        #     action[1] = torch.linear(action[1])*self.action_limit_w
-        # else:
-        #     # action[:,0] = torch.sigmoid(action[:,0])*self.action_limit_v
-        #     # action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
-        #     action[:,0] = torch.linear(action[:,0])*self.action_limit_v
-        #     action[:,1] = torch.linear(action[:,1])*self.action_limit_w
+        x = torch.relu(self.fa3(x))
+        # x = torch.relu(self.fa4(x))
+        action = self.fa4(x)
+        if state.shape <= torch.Size([self.state_dim]):
+            action[0] = torch.sigmoid(action[0])*self.action_limit_v
+            action[1] = torch.tanh(action[1])*self.action_limit_w
+        else:
+            action[:,0] = torch.sigmoid(action[:,0])*self.action_limit_v
+            action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
         return action
 
 #---Memory Buffer---#
@@ -253,7 +277,6 @@ class Trainer:
         #print(self.qvalue, torch.max(self.qvalue))
         #----------------------------
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
-
         
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
@@ -310,25 +333,17 @@ STATE_DIMENSION = 24
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
-ACTION_W_MAX = 0.25 # rad/s
-ACTION_W_MIN = -0.25
+ACTION_W_MAX = 0.25 # rad
 world = 'ddpg_stage_1'
-
-if is_training:
-    var_v = ACTION_V_MAX*.5
-    var_w = ACTION_W_MAX*2*.5
-else:
-    var_v = ACTION_V_MAX*0.10
-    var_w = ACTION_W_MAX*0.10
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
-print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad/s')
+print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad')
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 0
-# trainer.load_models(ep_start)
+ep_start = 3320
+trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
@@ -343,18 +358,27 @@ if __name__ == '__main__':
         done = False
         state = env.reset()
         if is_training and not ep%10 == 0 and ram.len >= before_training*MAX_STEPS:
-            print('---------------------------------')
-            print('Episode: ' + str(ep) + ' training')
-            print('---------------------------------')
+            rospy.loginfo("---------------------------------")
+            rospy.loginfo("Episode: %s training", str(ep))
+            rospy.loginfo("---------------------------------")
+            # print('---------------------------------')
+            # print('Episode: ' + str(ep) + ' training')
+            # print('---------------------------------')
         else:
             if ram.len >= before_training*MAX_STEPS:
-                print('---------------------------------')
-                print('Episode: ' + str(ep) + ' evaluating')
-                print('---------------------------------')
+                # print('---------------------------------')
+                # print('Episode: ' + str(ep) + ' evaluating')
+                # print('---------------------------------')
+                rospy.loginfo("---------------------------------")
+                rospy.loginfo("Episode: %s evaluating", str(ep))
+                rospy.loginfo("---------------------------------")
             else:
-                print('---------------------------------')
-                print('Episode: ' + str(ep) + ' adding to memory')
-                print('---------------------------------')
+                # print('---------------------------------')
+                # print('Episode: ' + str(ep) + ' adding to memory')
+                # print('---------------------------------')
+                rospy.loginfo("---------------------------------")
+                rospy.loginfo("Episode: %s adding to memory", str(ep))
+                rospy.loginfo("---------------------------------")
 
         rewards_current_episode = 0.
 
@@ -363,34 +387,14 @@ if __name__ == '__main__':
 
             if is_training:
                 action = trainer.get_exploration_action(state)
-                # action[0] = np.clip(
-                #     np.random.normal(action[0], var_v), 0., ACTION_V_MAX)
-                # action[0] = np.clip(np.clip(
-                #     action[0] + np.random.uniform(-var_v, var_v), action[0] - var_v, action[0] + var_v), 0., ACTION_V_MAX)
-                # action[1] = np.clip(
-                #     np.random.normal(action[1], var_w), -ACTION_W_MAX, ACTION_W_MAX)
-                N = copy.deepcopy(noise.get_noise(t=step))
-                # N[0] = N[0]*ACTION_V_MAX/2
-                # N[1] = N[1]*ACTION_W_MAX                
-                print("------")
-                print(N)
-                print(action)
-
-                action[0] = np.clip(action[0] + N[0], -10.0, 10.0)
-                action[1] = np.clip(action[1] + N[1], -10.0, 10.0)
-                print(action)
-                action[0] = (action[0] - -10)/(20)
-                action[1] = 2*(action[1] - -10)/(20) - 1
-                print(action)
-                action[0] = action[0]*ACTION_V_MAX
-                action[1] = action[1]*ACTION_W_MAX
                 
-                print(action)
+                N = copy.deepcopy(noise.get_noise(t=step))                
+                N[0] = np.clip(N[0], -1.0, 1.0)*ACTION_V_MAX/2
+                N[1] = np.clip(N[0], -1.0, 1.0)*ACTION_W_MAX
+                action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
+                action[1] = np.clip(action[1] + N[1], -ACTION_W_MAX, ACTION_W_MAX)
             else:
                 action = trainer.get_exploration_action(state)
-
-                action[0] = np.clip(action[0], ACTION_V_MIN, ACTION_V_MAX)
-                action[1] = np.clip(action[1], -ACTION_W_MAX, ACTION_W_MAX)
 
             if not is_training:
                 action = trainer.get_exploitation_action(state)
@@ -402,25 +406,27 @@ if __name__ == '__main__':
             next_state = np.float32(next_state)
             if not ep%2 == 0 or not ram.len >= before_training*MAX_STEPS:
                 if reward == 100.:
-                    print('***\n-------- Maximum Reward ----------\n****')
+                    rospy.loginfo("--------- Maximum Reward ----------")
+                    # print('***\n-------- Maximum Reward ----------\n****')
                     for _ in range(3):
                         ram.add(state, action, reward, next_state, done)
                 else:
                     ram.add(state, action, reward, next_state, done)
-            state = copy.deepcopy(next_state)
-            
+
+            state = copy.deepcopy(next_state)            
 
             if ram.len >= before_training*MAX_STEPS and is_training and not ep%10 == 0:
-                # var_v = max([var_v*0.99999, 0.005*ACTION_V_MAX])
-                # var_w = max([var_w*0.99999, 0.01*ACTION_W_MAX])
                 trainer.optimizer()
 
             if done or step == MAX_STEPS-1:
-                print('reward per ep: ' + str(rewards_current_episode))
-                print('*\nbreak step: ' + str(step) + '\n*')
-                # print('explore_v: ' + str(var_v) + ' and explore_w: ' + str(var_w))
-                print('sigma: ' + str(noise.sigma))
-                # rewards_all_episodes.append(rewards_current_episode)
+                rospy.loginfo("Reward per ep: %s", str(rewards_current_episode))
+                rospy.loginfo("Break step: %s", str(step))
+                rospy.loginfo("Sigma: %s", str(noise.sigma))
+                # print('reward per ep: ' + str(rewards_current_episode))
+                # print('*\nbreak step: ' + str(step) + '\n*')
+                # # print('explore_v: ' + str(var_v) + ' and explore_w: ' + str(var_w))
+                # print('sigma: ' + str(noise.sigma))
+                # # rewards_all_episodes.append(rewards_current_episode)
                 if not ep%2 == 0:
                     pass
                 else:
