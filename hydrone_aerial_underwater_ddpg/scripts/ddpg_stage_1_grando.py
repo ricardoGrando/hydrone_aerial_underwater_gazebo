@@ -103,11 +103,11 @@ class Critic(nn.Module):
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
-        # self.fca4 = nn.Linear(512, 1)
-        # nn.init.xavier_uniform_(self.fca4.weight)
-        # self.fca4.bias.data.fill_(0.01)
-        # # self.fca2.weight.data.uniform_(-EPS, EPS)
-        # # self.fca2.bias.data.uniform_(-EPS, EPS)
+        self.fca4 = nn.Linear(512, 1)
+        nn.init.xavier_uniform_(self.fca4.weight)
+        self.fca4.bias.data.fill_(0.01)
+        # self.fca2.weight.data.uniform_(-EPS, EPS)
+        # self.fca2.bias.data.uniform_(-EPS, EPS)
         
     def forward(self, state, action):
         xs = torch.relu(self.fc1(state))
@@ -115,8 +115,8 @@ class Critic(nn.Module):
         x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.fca1(x))
         x = torch.relu(self.fca2(x))
-        # x = torch.relu(self.fca3(x))
-        vs = self.fca3(x)
+        x = torch.relu(self.fca3(x))
+        vs = self.fca4(x)
         return vs
 
 #---Actor---#
@@ -153,18 +153,18 @@ class Actor(nn.Module):
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
 
-        # self.fa5 = nn.Linear(512, action_dim)
-        # nn.init.xavier_uniform_(self.fa5.weight)
-        # self.fa5.bias.data.fill_(0.01)
-        # # self.fa3.weight.data.uniform_(-EPS, EPS)
-        # # self.fa3.bias.data.uniform_(-EPS, EPS)
+        self.fa5 = nn.Linear(512, action_dim)
+        nn.init.xavier_uniform_(self.fa5.weight)
+        self.fa5.bias.data.fill_(0.01)
+        # self.fa3.weight.data.uniform_(-EPS, EPS)
+        # self.fa3.bias.data.uniform_(-EPS, EPS)
         
     def forward(self, state):
         x = torch.relu(self.fa1(state))
         x = torch.relu(self.fa2(x))
         x = torch.relu(self.fa3(x))
-        # x = torch.relu(self.fa4(x))
-        action = self.fa4(x)
+        x = torch.relu(self.fa4(x))
+        action = self.fa5(x)
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
