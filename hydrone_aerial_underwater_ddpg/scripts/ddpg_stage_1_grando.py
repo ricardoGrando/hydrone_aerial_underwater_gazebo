@@ -334,7 +334,7 @@ ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
 ACTION_W_MAX = 0.25 # rad
-world = 'ddpg_stage_1'
+world = 'ddpg_grando'
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
@@ -342,7 +342,7 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 3320
+ep_start = 2320
 trainer.load_models(ep_start)
 
 if __name__ == '__main__':

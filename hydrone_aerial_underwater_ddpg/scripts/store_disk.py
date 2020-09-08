@@ -6,15 +6,9 @@ from geometry_msgs.msg import *
 
 NAME = 'ddpg_env1_2d_5_layers'
 
-flag = False
-
 def store_disk(data):
     global NAME
-    global flag
-    if (flag):
-        file_object = open('/content/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
-    else:
-        file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
+    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
     
     file_object.write(data.data+'\n')
 
