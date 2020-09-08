@@ -14,7 +14,7 @@
   <arg name="use_simplified_mesh" default="false" doc="Use simplified geometries instead of the mesh"/>
   
   <arg name="world_name" default="stage_1_aerial"/>
-  <arg name="gui" default="false"/>
+  <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
 
   <arg name="mav_name" default="hydrone"/>
