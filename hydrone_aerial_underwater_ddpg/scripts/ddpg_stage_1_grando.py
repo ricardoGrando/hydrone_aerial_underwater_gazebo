@@ -115,8 +115,8 @@ class Critic(nn.Module):
         x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.fca1(x))
         x = torch.relu(self.fca2(x))
-        x = torch.relu(self.fca3(x))
-        vs = self.fca4(x)
+        # x = torch.relu(self.fca3(x))
+        vs = self.fca3(x)
         return vs
 
 #---Actor---#
@@ -163,8 +163,8 @@ class Actor(nn.Module):
         x = torch.relu(self.fa1(state))
         x = torch.relu(self.fa2(x))
         x = torch.relu(self.fa3(x))
-        x = torch.relu(self.fa4(x))
-        action = self.fa5(x)
+        # x = torch.relu(self.fa4(x))
+        action = self.fa4(x)
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
