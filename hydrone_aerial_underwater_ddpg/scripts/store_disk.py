@@ -4,7 +4,7 @@ import rospy
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 
-NAME = 'ddpg_env1_2d_5_layers'
+NAME = 'ddpg_env2_2d_5_layers'
 
 def store_disk(data):
     global NAME
