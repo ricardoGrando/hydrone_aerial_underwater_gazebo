@@ -1,8 +1,0 @@
-<launch>
-  <arg name="stage" default="1"/>
-  <param name="stage_number"  value="$(arg stage)"/>
-  <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
-  <include file="$(find hydrone_aerial_underwater_ddpg)/launch/hydrone_aerial_deep_rl_grando.launch" />
-  <node pkg="hydrone_aerial_underwater_ddpg" type="ddpg_stage_1_grando.py" name="ddpg_stage_1" output="screen" />
-  <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk_grando.py" name="store_disk" output="screen" />
-</launch>

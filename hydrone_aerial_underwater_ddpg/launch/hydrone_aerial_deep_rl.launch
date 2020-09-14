@@ -14,7 +14,7 @@
   <arg name="use_simplified_mesh" default="false" doc="Use simplified geometries instead of the mesh"/>
   
   <arg name="world_name" default="stage_2_aerial"/>
-  <arg name="gui" default="false"/>
+  <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
 
   <arg name="mav_name" default="hydrone"/>
@@ -55,7 +55,7 @@
       <!-- <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" /> -->
     </node>
 
-    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity_air.py" />    
+    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity_air_2D.py" />    
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />

@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from collections import deque
 from std_msgs.msg import *
-from environment_stage_1 import Env
+from environment_2D import Env
 import torch
 import torch.nn.functional as F
 import gc
@@ -97,7 +97,7 @@ class Critic(nn.Module):
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
-        self.fca3 = nn.Linear(512, 1)
+        self.fca3 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca3.weight)
         self.fca3.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
@@ -115,8 +115,8 @@ class Critic(nn.Module):
         x = torch.cat((xs,xa), dim=1)
         x = torch.relu(self.fca1(x))
         x = torch.relu(self.fca2(x))
-        # x = torch.relu(self.fca3(x))
-        vs = self.fca3(x)
+        x = torch.relu(self.fca3(x))
+        vs = self.fca4(x)
         return vs
 
 #---Actor---#
@@ -147,7 +147,7 @@ class Actor(nn.Module):
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
 
-        self.fa4 = nn.Linear(512, action_dim)
+        self.fa4 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fa4.weight)
         self.fa4.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS, EPS)
@@ -163,8 +163,8 @@ class Actor(nn.Module):
         x = torch.relu(self.fa1(state))
         x = torch.relu(self.fa2(x))
         x = torch.relu(self.fa3(x))
-        # x = torch.relu(self.fa4(x))
-        action = self.fa4(x)
+        x = torch.relu(self.fa4(x))
+        action = self.fa5(x)
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = torch.sigmoid(action[0])*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
@@ -334,7 +334,7 @@ ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
 ACTION_W_MAX = 0.25 # rad
-world = 'ddpg_grando'
+world = 'ddpg_stage_1'
 
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
@@ -342,7 +342,7 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 3460
+ep_start = 1940
 trainer.load_models(ep_start)
 
 if __name__ == '__main__':

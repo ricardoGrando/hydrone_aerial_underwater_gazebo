@@ -1,0 +1,11 @@
+<launch>
+  <arg name="stage" default="1"/>
+  <param name="stage_number"  value="$(arg stage)"/>
+  <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
+  <include file="$(find hydrone_aerial_underwater_ddpg)/launch/hydrone_aerial_deep_rl.launch" >
+    <arg name="world_name" value="stage_1_aerial" />
+    <arg name="gui" value="true" />
+  </include>
+  <node pkg="hydrone_aerial_underwater_ddpg" type="sac_2D.py" name="sac_2D" output="screen" />
+  <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk_sac.py" name="store_disk" output="screen" />
+</launch>

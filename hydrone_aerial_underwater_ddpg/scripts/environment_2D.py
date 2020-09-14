@@ -15,13 +15,13 @@ world = False
 if world:
     from respawnGoal_custom_worlds import Respawn
 else:
-    from respawnGoal import Respawn
+    from respawnGoal_2D import Respawn
 import copy
 target_not_movable = False
 
 # # Navegation
 # world = True
-# from respawnGoal import Respawn
+# from respawnGoal_2D import Respawn
 # import copy
 # target_not_movable = True
 
