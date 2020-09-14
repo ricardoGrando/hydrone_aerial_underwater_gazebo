@@ -342,8 +342,6 @@ print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' r
 ram = MemoryBuffer(MAX_BUFFER)
 trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
-ep_start = 1940
-trainer.load_models(ep_start)
 
 if __name__ == '__main__':
     rospy.init_node('ddpg_stage_1')
@@ -352,9 +350,16 @@ if __name__ == '__main__':
     env = Env(action_dim=ACTION_DIMENSION)
     before_training = 1
 
+    ep_0 = rospy.get_param('~ep_number')
+
+    if (ep_0 != 0):
+        trainer.load_models(ep_0))
+
+    rospy.loginfo("Starting at episode: %s ", str(ep_0))
+
     past_action = np.zeros(ACTION_DIMENSION)
 
-    for ep in range(ep_start, MAX_EPISODES):
+    for ep in range(ep_0, MAX_EPISODES):
         done = False
         state = env.reset()
         if is_training and not ep%10 == 0 and ram.len >= before_training*MAX_STEPS:

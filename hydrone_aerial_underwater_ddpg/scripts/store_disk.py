@@ -4,11 +4,11 @@ import rospy
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 
-NAME = 'ddpg_env2_2d_5_layers'
+PATH = 'sac_stage_1/sac_env1_2d_3_layers'
 
 def store_disk(data):
     global NAME
-    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/ddpg_stage_1/'+NAME+'.csv', 'a')
+    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/'+PATH+'.csv', 'a')
     
     file_object.write(data.data+'\n')
 
@@ -19,8 +19,11 @@ def pose_callback(data):
     # time.sleep(0.1)
     # print(data)
 
-if __name__ == "__main__": 
-    rospy.init_node("store_disk", anonymous=False)    
+if __name__ == "__main__":
+    global NAME 
+    rospy.init_node("store_disk", anonymous=False)   
+
+    PATH = rospy.get_param('~file_path') 
 
     rospy.Subscriber("/result", String, store_disk)
 

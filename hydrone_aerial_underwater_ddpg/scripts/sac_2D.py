@@ -164,12 +164,10 @@ class SAC(object):
         self.target_entropy = -torch.prod(torch.Tensor([action_dim]).to(self.device)).item()
         print('entropy', self.target_entropy)
         self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
-        self.alpha_optim = Adam([self.log_alpha], lr=self.lr)
-        
+        self.alpha_optim = Adam([self.log_alpha], lr=self.lr)        
 
         self.policy = PolicyNetwork(state_dim, action_dim, hidden_dim).to(self.device)
-        self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)
-        
+        self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)        
         
     def select_action(self, state, eval=False):
         state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
@@ -254,7 +252,7 @@ class SAC(object):
     # Save model parameters
     def save_models(self, episode_count):
         torch.save(self.policy.state_dict(), dirPath + '/Models/' + world + '/'+str(episode_count)+ '_policy_net.pth')
-        torch.save(self.critic.state_dict(), dirPath + '/Models/' + world + '/'+str(episode_count)+ 'value_net.pth')
+        torch.save(self.critic.state_dict(), dirPath + '/Models/' + world + '/'+str(episode_count)+ '_value_net.pth')
         print("====================================")
         print("Model has been saved...")
         print("====================================")
@@ -283,18 +281,23 @@ ACTION_W_MAX = 0.25 # rad/s
 world = 'sac_stage_1'
 replay_buffer_size = 50000
 
-agent = SAC(state_dim, action_dim)
-replay_buffer = ReplayBuffer(replay_buffer_size)
-# agent.load_models(40)
-ep_0 = 0
-
 print('State Dimensions: ' + str(state_dim))
 print('Action Dimensions: ' + str(action_dim))
 print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad')
 
+agent = SAC(state_dim, action_dim)
+replay_buffer = ReplayBuffer(replay_buffer_size)    
+
 if __name__ == '__main__':
     rospy.init_node('sac')
     pub_result = rospy.Publisher('result', String, queue_size=5)
+    ep_0 = rospy.get_param('~ep_number')
+
+    if (ep_0 != 0):
+        agent.load_models(ep_0)
+
+    rospy.loginfo("Starting at episode: %s ", str(ep_0))
+ 
     result = Float32()
     env = Env()
     before_training = 4
