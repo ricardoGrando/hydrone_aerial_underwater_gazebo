@@ -9,6 +9,7 @@ ROOT = '/home/ricardo/'
 
 def store_disk(data):
     global NAME
+    global ROOT
     file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/'+PATH+'.csv', 'a')
     
     file_object.write(data.data+'\n')
