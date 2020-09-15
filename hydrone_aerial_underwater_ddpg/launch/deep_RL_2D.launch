@@ -1,13 +1,15 @@
 <launch>
   <arg name="deep_rl" default="sac_2D.py"/> 
-  <arg name="ep" default="0"/>  
-  <arg name="file_dir" default="sac_stage_1/sac_env1_2d_3_layers"/>  
+  <arg name="ep" default="0"/> 
+  <arg name="world" default="stage_1_aerial"/>  
+  <arg name="file_dir" default="sac_stage_1/sac_env1_2d_3_layers"/>
+    
   <!-- <arg name="file_dir" default="ddpg_stage_1/ddpg_env2_2d_5_layers"/>  1940 -->
   <!-- <arg name="file_dir" default="ddpg_grando/ddpg_env2_2d"/>  3660 -->
   
   <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
   <include file="$(find hydrone_aerial_underwater_ddpg)/launch/hydrone_aerial_deep_rl.launch" >
-    <arg name="world_name" value="stage_1_aerial" />
+    <arg name="world_name" value="$(arg world)" />
     <arg name="gui" value="true" />
   </include>
   <node pkg="hydrone_aerial_underwater_ddpg" type="$(arg deep_rl)" name="sac_2D" output="screen">

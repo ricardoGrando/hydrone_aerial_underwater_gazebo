@@ -353,7 +353,7 @@ if __name__ == '__main__':
     ep_0 = rospy.get_param('~ep_number')
 
     if (ep_0 != 0):
-        trainer.load_models(ep_0))
+        trainer.load_models(ep_0)
 
     rospy.loginfo("Starting at episode: %s ", str(ep_0))
 
