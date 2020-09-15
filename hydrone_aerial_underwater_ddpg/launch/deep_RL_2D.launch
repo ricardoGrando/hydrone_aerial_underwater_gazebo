@@ -1,7 +1,8 @@
 <launch>
   <arg name="deep_rl" default="sac_2D.py"/> 
   <arg name="ep" default="0"/> 
-  <arg name="world" default="stage_1_aerial"/>  
+  <arg name="world" default="stage_1_aerial"/> 
+  <arg name="root_dir" default="/home/ricardo/"/>  
   <arg name="file_dir" default="sac_stage_1/sac_env1_2d_3_layers"/>
     
   <!-- <arg name="file_dir" default="ddpg_stage_1/ddpg_env2_2d_5_layers"/>  1940 -->
@@ -17,5 +18,6 @@
   </node>
   <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk.py" name="store_disk" output="screen">
     <param name="file_path"  value="$(arg file_dir)"/>
+    <param name="root_path"  value="$(arg root_dir)"/>
   </node>
 </launch>

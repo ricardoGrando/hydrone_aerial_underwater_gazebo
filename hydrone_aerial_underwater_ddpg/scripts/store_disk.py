@@ -5,10 +5,11 @@ from std_msgs.msg import *
 from geometry_msgs.msg import *
 
 PATH = 'sac_stage_1/sac_env1_2d_3_layers'
+ROOT = '/home/ricardo/'
 
 def store_disk(data):
     global NAME
-    file_object = open('/home/ricardo/catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/'+PATH+'.csv', 'a')
+    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/Models/'+PATH+'.csv', 'a')
     
     file_object.write(data.data+'\n')
 
@@ -21,9 +22,11 @@ def pose_callback(data):
 
 if __name__ == "__main__":
     global NAME 
+    global ROOT
     rospy.init_node("store_disk", anonymous=False)   
 
     PATH = rospy.get_param('~file_path') 
+    ROOT = rospy.get_param('~root_path') 
 
     rospy.Subscriber("/result", String, store_disk)
 
