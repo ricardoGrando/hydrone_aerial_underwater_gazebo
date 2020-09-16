@@ -113,7 +113,7 @@ class Critic(nn.Module):
         # xs = torch.relu(self.fc1(state))
         # xa = torch.relu(self.fa1(action))
         # x = torch.cat((xs,xa), dim=1)
-        x = torch.relu(self.fca1(x))
+        x = torch.relu(self.fca1(state+action))
         x = torch.relu(self.fca2(x))
         # x = torch.relu(self.fca3(x))
         vs = self.fca3(x)
@@ -426,4 +426,4 @@ if __name__ == '__main__':
 
 print('Completed Training')
 
-# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_path:=/home/ricardo/
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/
