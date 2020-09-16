@@ -166,12 +166,12 @@ class Actor(nn.Module):
         # x = torch.relu(self.fa3(x))
         # x = torch.relu(self.fa4(x))
         action = self.fa3(x)
-        # if state.shape <= torch.Size([self.state_dim]):
-        #     action[0] = torch.tanh(action[0])*self.action_limit_v
-        #     action[1] = torch.tanh(action[1])*self.action_limit_w
-        # else:
-        #     action[:,0] = torch.tanh(action[:,0])*self.action_limit_v
-        #     action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
+        if state.shape <= torch.Size([self.state_dim]):
+            action[0] = ((torch.tanh(action[0]) + 1.0)/2.0)*self.action_limit_v
+            action[1] = torch.tanh(action[1])*self.action_limit_w
+        else:
+            action[:,0] = ((torch.tanh(action[:,0]) + 1.0)/2.0)*self.action_limit_v
+            action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
         return action
 
 #---Memory Buffer---#
@@ -381,20 +381,20 @@ if __name__ == '__main__':
                 N = copy.deepcopy(noise.get_noise(t=step))                
                 N[0] = N[0]*ACTION_V_MAX/2
                 N[1] = N[0]*ACTION_W_MAX
-                action[0] = action[0] + N[0]
-                action[1] = action[1] + N[1]
+                # action[0] = action[0] + N[0]
+                # action[1] = action[1] + N[1]
                 # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))
                 # rospy.loginfo("Action before: %s, %s", str(N[0]), str(N[1]))
-                # action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
-                # action[1] = np.clip(action[1] + N[1], ACTION_W_MIN, ACTION_W_MAX)
+                action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
+                action[1] = np.clip(action[1] + N[1], ACTION_W_MIN, ACTION_W_MAX)
             else:
                 action = trainer.get_exploration_action(state)
 
             if not is_training:
                 action = trainer.get_exploitation_action(state)
-            unnorm_action = np.array([action_unnormalized(action[0], ACTION_V_MAX, ACTION_V_MIN), action_unnormalized(action[1], ACTION_W_MAX, ACTION_W_MIN)])
+            # unnorm_action = np.array([action_unnormalized(action[0], ACTION_V_MAX, ACTION_V_MIN), action_unnormalized(action[1], ACTION_W_MAX, ACTION_W_MIN)])
 
-            next_state, reward, done = env.step(unnorm_action, past_action)
+            next_state, reward, done = env.step(action, past_action)
             # print('action', action,'r',reward)
             past_action = action
 
