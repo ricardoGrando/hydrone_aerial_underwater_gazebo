@@ -426,5 +426,4 @@ if __name__ == '__main__':
 
 print('Completed Training')
 
-# result = (str(ep)+','+str(rewards_current_episode))
-#                         pub_result.publish(result)
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_path:=/home/ricardo/

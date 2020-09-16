@@ -170,7 +170,7 @@ class SAC(object):
         self.policy_optim = Adam(self.policy.parameters(), lr=self.lr)        
         
     def select_action(self, state, eval=False):
-        state = torch.FloatTensor(state).to(self.device)
+        state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
         if eval == False:
             action, _, _, _ = self.policy.sample(state)
         else:
