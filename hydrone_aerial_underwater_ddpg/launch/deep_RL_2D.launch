@@ -4,6 +4,7 @@
   <arg name="world" default="stage_1_aerial"/> 
   <arg name="root_dir" default="/home/ricardo/"/>  
   <arg name="file_dir" default="sac_stage_1/sac_env1_2d_3_layers"/>
+  <arg name="graphic_int" default="false"/> 
     
   <!-- <arg name="file_dir" default="ddpg_stage_1/ddpg_env2_2d_5_layers"/>  1940 -->
   <!-- <arg name="file_dir" default="ddpg_grando/ddpg_env2_2d"/>  3660 -->
@@ -11,7 +12,7 @@
   <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
   <include file="$(find hydrone_aerial_underwater_ddpg)/launch/hydrone_aerial_deep_rl.launch" >
     <arg name="world_name" value="$(arg world)" />
-    <arg name="gui" value="false" />
+    <arg name="gui" value="$(arg graphic_int)" />
   </include>
   <node pkg="hydrone_aerial_underwater_ddpg" type="$(arg deep_rl)" name="sac_2D" output="screen">
     <param name="ep_number"  value="$(arg ep)"/>
@@ -21,4 +22,5 @@
     <param name="file_path"  value="$(arg file_dir)"/>
     <param name="root_path"  value="$(arg root_dir)"/>
   </node>
+  <node pkg="hydrone_aerial_underwater_ddpg" type="wind.py" name="wind_node" output="screen"></node>
 </launch>
