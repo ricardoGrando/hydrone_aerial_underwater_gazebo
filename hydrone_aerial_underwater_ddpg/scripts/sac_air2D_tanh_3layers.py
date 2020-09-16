@@ -366,3 +366,5 @@ if __name__ == '__main__':
         
         if ep%20 == 0:
             agent.save_models(ep)
+
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=sac_stage_1_air2D_tanh_3layers deep_rl:=sac_air2D_tanh_3layers.py world:=stage_1_aerial root_path:=/home/ricardo/

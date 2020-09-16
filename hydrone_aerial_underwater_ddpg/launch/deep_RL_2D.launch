@@ -11,7 +11,7 @@
   <!-- <node pkg="hydrone_aerial_underwater_ddpg" type="combination_obstacle.py" name="obstacle" output="screen" /> -->
   <include file="$(find hydrone_aerial_underwater_ddpg)/launch/hydrone_aerial_deep_rl.launch" >
     <arg name="world_name" value="$(arg world)" />
-    <arg name="gui" value="true" />
+    <arg name="gui" value="false" />
   </include>
   <node pkg="hydrone_aerial_underwater_ddpg" type="$(arg deep_rl)" name="sac_2D" output="screen">
     <param name="ep_number"  value="$(arg ep)"/>
