@@ -131,7 +131,8 @@ class PolicyNetwork(nn.Module):
         std = log_std.exp()
         normal = Normal(mean, std)
         x_t = normal.rsample()
-        action = torch.Hardtanh(x_t)
+        m = nn.Hardtanh(-1, 1)
+        action = m(x_t)
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + epsilon)
         log_prob = log_prob.sum(1, keepdim=True)
@@ -181,7 +182,8 @@ class SAC(object):
             action, _, _, _ = self.policy.sample(state)
         else:
             _, _, action, _ = self.policy.sample(state)
-            action = torch.Hardtanh(action)
+            m = nn.Hardtanh(-1, 1)
+            action = m(action)
         action = action.detach().cpu().numpy()[0]
         return action
     
