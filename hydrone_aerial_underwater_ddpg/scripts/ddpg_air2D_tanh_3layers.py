@@ -255,7 +255,8 @@ class Trainer:
         r_sample = torch.from_numpy(r_sample)
         new_s_sample = torch.from_numpy(new_s_sample)
         done_sample = torch.from_numpy(done_sample)
-        
+        rospy.loginfo("s_sample %s , a_sample %s, r_sample %s, new_s_sample %s, done_sample %s", str(s_sample.size()), str(a_sample.size()), str(r_sample.size()), str(new_s_sample.size()), str(done_sample.size()))
+                
         #-------------- optimize critic
         
         a_target = self.target_actor.forward(new_s_sample).detach()

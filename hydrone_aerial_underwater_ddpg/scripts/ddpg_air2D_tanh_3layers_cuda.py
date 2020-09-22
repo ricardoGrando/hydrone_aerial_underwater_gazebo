@@ -62,12 +62,6 @@ class OUNoise(object):
 
 #---Critic--#
 
-EPS = 0.01
-def fanin_init(size, fanin=None):
-    fanin = fanin or size[0]
-    v = 1./np.sqrt(fanin)
-    return torch.Tensor(size).uniform_(-v,v)
-
 class Critic(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Critic, self).__init__()
@@ -177,45 +171,36 @@ class Actor(nn.Module):
 
 #---Memory Buffer---#
 
-class MemoryBuffer:
-    def __init__(self, size):
-        self.buffer = deque(maxlen=size)
-        self.maxSize = size
-        self.len = 0
-        
-    def sample(self, count):
-        batch = []
-        count = min(count, self.len)
-        batch = random.sample(self.buffer, count)
-        
-        s_array = np.float32([array[0] for array in batch])
-        a_array = np.float32([array[1] for array in batch])
-        r_array = np.float32([array[2] for array in batch])
-        new_s_array = np.float32([array[3] for array in batch])
-        done_array = np.float32([array[4] for array in batch])
-        
-        return s_array, a_array, r_array, new_s_array, done_array
+class ReplayBuffer:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.buffer = []
+        self.position = 0
     
-    def len(self):
-        return self.len
+    def push(self, state, action, reward, next_state, done):
+        if len(self.buffer) < self.capacity:
+            self.buffer.append(None)
+        self.buffer[self.position] = (state, action, reward, next_state, done)
+        self.position = (self.position + 1) % self.capacity
     
-    def add(self, s, a, r, new_s, done):
-        transition = (s, a, r, new_s, done)
-        self.len += 1 
-        if self.len > self.maxSize:
-            self.len = self.maxSize
-        self.buffer.append(transition)
+    def sample(self, batch_size):
+        batch = random.sample(self.buffer, batch_size)
+        state, action, reward, next_state, done = map(np.stack, zip(*batch))
+        return state, action, reward, next_state, done
+    
+    def __len__(self):
+        return len(self.buffer)
 
 class Trainer:    
-    def __init__(self, state_dim, action_dim, action_limit_v, action_limit_w, ram):
+    def __init__(self, state_dim, action_dim, action_limit_v, action_limit_w, replay_buffer):
         
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
-        #print('w',self.action_limit_w)
-        self.ram = ram
-        #self.iter = 0 
+        #print('w',self.action_limit_w)       
+
+        self.replay_buffer = replay_buffer
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         
@@ -233,14 +218,14 @@ class Trainer:
         hard_update(self.target_critic, self.critic)
         
     def get_exploitation_action(self,state):
-        state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
+        state = torch.FloatTensor(state).to(self.device)
         action = self.actor.forward(state)
         #print('actionploi', action)
         # rospy.loginfo(" %s ", str(action))
         return action.detach().cpu().numpy()
         
     def get_exploration_action(self, state):
-        state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
+        state = torch.FloatTensor(state).to(self.device)
         action = self.actor.forward(state)
         # rospy.loginfo(" %s ", str(action))
         #noise = self.noise.sample()
@@ -253,22 +238,26 @@ class Trainer:
         return new_action
     
     def optimizer(self):
-        s_sample, a_sample, r_sample, new_s_sample, done_sample = ram.sample(BATCH_SIZE)
+        s_sample, a_sample, r_sample, new_s_sample, done_sample = replay_buffer.sample(BATCH_SIZE)
         
         s_sample = torch.FloatTensor(s_sample).to(self.device)
         a_sample = torch.FloatTensor(a_sample).to(self.device)
-        r_sample = torch.FloatTensor(r_sample).to(self.device).unsqueeze(1)
+        r_sample = torch.FloatTensor(r_sample).to(self.device)
         new_s_sample = torch.FloatTensor(new_s_sample).to(self.device)
-        done_sample = torch.FloatTensor(done_sample).to(self.device).unsqueeze(1)
+        done_sample = torch.FloatTensor(done_sample).to(self.device)
+        # rospy.loginfo("s_sample %s , a_sample %s, r_sample %s, new_s_sample %s, done_sample %s", str(s_sample.size()), str(a_sample.size()), str(r_sample.size()), str(new_s_sample.size()), str(done_sample.size()))
         
         #-------------- optimize critic
         
         a_target = self.target_actor.forward(new_s_sample)
-        next_value = self.target_critic.forward(new_s_sample, a_target)
+        next_value = self.target_critic.forward(new_s_sample, a_target).squeeze(1)
+        # rospy.loginfo("next_value %s , new_s_sample %s", str(next_value.size()), str(new_s_sample.size()))
         # y_exp = r _ gamma*Q'(s', P'(s'))
         y_expected = r_sample + (1 - done_sample)*GAMMA*next_value
+        # rospy.loginfo("r_sample %s , done_sample %s", str(r_sample.size()), str(done_sample.size()))
         # y_pred = Q(s,a)
-        y_predicted = self.critic.forward(s_sample, a_sample)
+        y_predicted = self.critic.forward(s_sample, a_sample).squeeze(1)
+        # rospy.loginfo("pred %s , exp %s", str(y_predicted.size()), str(y_expected.size()))
         #-------Publisher of Vs------
         self.qvalue = y_predicted
         self.pub_qvalue.publish(torch.max(self.qvalue))
@@ -338,8 +327,8 @@ world = '3bdb'
 print('State Dimensions: ' + str(STATE_DIMENSION))
 print('Action Dimensions: ' + str(ACTION_DIMENSION))
 print('Action Max: ' + str(ACTION_V_MAX) + ' m/s and ' + str(ACTION_W_MAX) + ' rad')
-ram = MemoryBuffer(MAX_BUFFER)
-trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, ram)
+replay_buffer = ReplayBuffer(MAX_BUFFER)
+trainer = Trainer(STATE_DIMENSION, ACTION_DIMENSION, ACTION_V_MAX, ACTION_W_MAX, replay_buffer)
 noise = OUNoise(ACTION_DIMENSION, max_sigma=.71, min_sigma=0.2, decay_period=8000000)
 
 if __name__ == '__main__':
@@ -362,12 +351,12 @@ if __name__ == '__main__':
     for ep in range(ep_0, MAX_EPISODES):
         done = False
         state = env.reset()
-        if is_training and not ep%10 == 0 and ram.len >= before_training*BATCH_SIZE:
+        if is_training and not ep%10 == 0 and len(replay_buffer) >= before_training*BATCH_SIZE:
             rospy.loginfo("---------------------------------")
             rospy.loginfo("Episode: %s training", str(ep))
             rospy.loginfo("---------------------------------")            
         else:
-            if ram.len >= before_training*BATCH_SIZE:
+            if len(replay_buffer) >= before_training*BATCH_SIZE:
                 rospy.loginfo("---------------------------------")
                 rospy.loginfo("Episode: %s evaluating", str(ep))
                 rospy.loginfo("---------------------------------")
@@ -406,16 +395,16 @@ if __name__ == '__main__':
 
             rewards_current_episode += reward
             next_state = np.float32(next_state)
-            if not ep%10 == 0 or not ram.len >= before_training*BATCH_SIZE:
+            if not ep%10 == 0 or not len(replay_buffer) >= before_training*BATCH_SIZE:
                 if reward == 100.:
                     rospy.loginfo("--------- Maximum Reward ----------")
                     # print('***\n-------- Maximum Reward ----------\n****')
                     for _ in range(3):
-                        ram.add(state, action, reward, next_state, done)
+                        replay_buffer.push(state, action, reward, next_state, done)
                 else:
-                    ram.add(state, action, reward, next_state, done)
+                    replay_buffer.push(state, action, reward, next_state, done)
 
-            if ram.len >= before_training*BATCH_SIZE and is_training and not ep%10 == 0:
+            if len(replay_buffer) >= 300 and is_training and not ep%10 == 0:
                 trainer.optimizer()
             state = copy.deepcopy(next_state)   
 
