@@ -249,8 +249,8 @@ class Trainer:
         
         #-------------- optimize critic
         
-        a_target = self.target_actor.forward(new_s_sample)
-        next_value = self.target_critic.forward(new_s_sample, a_target).squeeze(1)
+        a_target = self.target_actor.forward(new_s_sample).detach()
+        next_value = self.target_critic.forward(new_s_sample, a_target).squeeze(1).detach()
         # rospy.loginfo("next_value %s , new_s_sample %s", str(next_value.size()), str(new_s_sample.size()))
         # y_exp = r _ gamma*Q'(s', P'(s'))
         y_expected = r_sample + (1 - done_sample)*GAMMA*next_value
@@ -259,7 +259,7 @@ class Trainer:
         y_predicted = self.critic.forward(s_sample, a_sample).squeeze(1)
         # rospy.loginfo("pred %s , exp %s", str(y_predicted.size()), str(y_expected.size()))
         #-------Publisher of Vs------
-        self.qvalue = y_predicted
+        self.qvalue = y_predicted.detach()
         self.pub_qvalue.publish(torch.max(self.qvalue))
         #print(self.qvalue, torch.max(self.qvalue))
         #----------------------------
@@ -379,7 +379,7 @@ if __name__ == '__main__':
                 # action[0] = action[0] + N[0]
                 # action[1] = action[1] + N[1]
                 # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))
-                # rospy.loginfo("Action before: %s, %s", str(N[0]), str(N[1]))
+                # rospy.loginfo("Action before: %s, %s", str(action[0]), str(action[1]))
                 action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
                 action[1] = np.clip(action[1] + N[1], ACTION_W_MIN, ACTION_W_MAX)
             else:
@@ -404,7 +404,7 @@ if __name__ == '__main__':
                 else:
                     replay_buffer.push(state, action, reward, next_state, done)
 
-            if len(replay_buffer) >= 300 and is_training and not ep%10 == 0:
+            if len(replay_buffer) > before_training*BATCH_SIZE and is_training and not ep%10 == 0:
                 trainer.optimizer()
             state = copy.deepcopy(next_state)   
 

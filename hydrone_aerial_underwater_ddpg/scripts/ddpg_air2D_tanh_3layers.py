@@ -166,6 +166,7 @@ class Actor(nn.Module):
         # x = torch.relu(self.fa3(x))
         # x = torch.relu(self.fa4(x))
         action = self.fa3(x)
+        # rospy.loginfo(" %s ", str(action))
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = ((torch.tanh(action[0]) + 1.0)/2.0)*self.action_limit_v
             action[1] = torch.tanh(action[1])*self.action_limit_w
@@ -255,7 +256,7 @@ class Trainer:
         r_sample = torch.from_numpy(r_sample)
         new_s_sample = torch.from_numpy(new_s_sample)
         done_sample = torch.from_numpy(done_sample)
-        rospy.loginfo("s_sample %s , a_sample %s, r_sample %s, new_s_sample %s, done_sample %s", str(s_sample.size()), str(a_sample.size()), str(r_sample.size()), str(new_s_sample.size()), str(done_sample.size()))
+        # rospy.loginfo("s_sample %s , a_sample %s, r_sample %s, new_s_sample %s, done_sample %s", str(s_sample.size()), str(a_sample.size()), str(r_sample.size()), str(new_s_sample.size()), str(done_sample.size()))
                 
         #-------------- optimize critic
         
@@ -386,6 +387,8 @@ if __name__ == '__main__':
                 # action[1] = action[1] + N[1]
                 # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))
                 # rospy.loginfo("Action before: %s, %s", str(N[0]), str(N[1]))
+                # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))
+                # rospy.loginfo("Action before: %s, %s", str(action[0]), str(action[1]))                
                 action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
                 action[1] = np.clip(action[1] + N[1], ACTION_W_MIN, ACTION_W_MAX)
             else:
