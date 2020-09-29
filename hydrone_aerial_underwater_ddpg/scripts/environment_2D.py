@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import rospy
 import numpy as np
 import math
@@ -10,20 +9,20 @@ from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
-# pathfollowing
-world = False
-if world:
-    from respawnGoal_custom_worlds import Respawn
-else:
-    from respawnGoal_2D import Respawn
-import copy
-target_not_movable = False
-
-# # Navegation
-# world = True
-# from respawnGoal_2D import Respawn
+# # pathfollowing
+# world = False
+# if world:
+#     from respawnGoal_custom_worlds import Respawn
+# else:
+#     from respawnGoal_2D import Respawn
 # import copy
-# target_not_movable = True
+# target_not_movable = False
+
+# Navegation
+world = True
+from respawnGoal_2D import Respawn
+import copy
+target_not_movable = True
 
 class Env():
     def __init__(self, action_dim=2):
