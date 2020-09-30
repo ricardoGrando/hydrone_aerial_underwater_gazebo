@@ -23,7 +23,6 @@ from torch.optim import Adam
 
 #---Directory Path---#
 dirPath = os.path.dirname(os.path.realpath(__file__))
-
 #****************************************************
 
 class ReplayBuffer:
@@ -73,14 +72,16 @@ class QNetwork(nn.Module):
         self.linear2_q1 = nn.Linear(hidden_dim, hidden_dim)
         self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
         self.linear4_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear5_q1 = nn.Linear(hidden_dim, 1)
+        self.linear5_q1 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear6_q1 = nn.Linear(hidden_dim, 1)
         
         # Q2
         self.linear1_q2 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q2 = nn.Linear(hidden_dim, hidden_dim)
         self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
         self.linear4_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear5_q2 = nn.Linear(hidden_dim, 1)
+        self.linear5_q2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear6_q2 = nn.Linear(hidden_dim, 1)
         
         self.apply(weights_init_)
         
@@ -91,13 +92,15 @@ class QNetwork(nn.Module):
         x1 = F.relu(self.linear2_q1(x1))
         x1 = F.relu(self.linear3_q1(x1))
         x1 = F.relu(self.linear4_q1(x1))
-        x1 = self.linear5_q1(x1)
+        x1 = F.relu(self.linear5_q1(x1))
+        x1 = self.linear6_q1(x1)
         
         x2 = F.relu(self.linear1_q2(x_state_action))
         x2 = F.relu(self.linear2_q2(x2))
         x2 = F.relu(self.linear3_q2(x2))
         x2 = F.relu(self.linear4_q2(x2))
-        x2 = self.linear5_q2(x2)
+        x2 = F.relu(self.linear5_q2(x2))
+        x2 = self.linear6_q2(x2)
         
         return x1, x2
 
@@ -111,6 +114,7 @@ class PolicyNetwork(nn.Module):
         self.linear1 = nn.Linear(state_dim, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         self.linear3 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear4 = nn.Linear(hidden_dim, hidden_dim)
 
         self.mean_linear = nn.Linear(hidden_dim, action_dim)
         self.log_std_linear = nn.Linear(hidden_dim, action_dim)
@@ -121,6 +125,7 @@ class PolicyNetwork(nn.Module):
         x = F.relu(self.linear1(state))
         x = F.relu(self.linear2(x))
         x = F.relu(self.linear3(x))
+        x = F.relu(self.linear4(x))
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
         log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)
@@ -131,8 +136,7 @@ class PolicyNetwork(nn.Module):
         std = log_std.exp()
         normal = Normal(mean, std)
         x_t = normal.rsample()
-        m = nn.Hardtanh(-1, 1)
-        action = m(x_t)
+        action = torch.tanh(x_t)
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + epsilon)
         log_prob = log_prob.sum(1, keepdim=True)
@@ -182,8 +186,7 @@ class SAC(object):
             action, _, _, _ = self.policy.sample(state)
         else:
             _, _, action, _ = self.policy.sample(state)
-            m = nn.Hardtanh(-1, 1)
-            action = m(action)
+            action = torch.tanh(action)
         action = action.detach().cpu().numpy()[0]
         return action
     
@@ -375,4 +378,4 @@ if __name__ == '__main__':
         if ep%20 == 0:
             agent.save_models(ep)
 
-# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=sac_stage_1_air2D_tanh_3layers deep_rl:=sac_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=sac_stage_1_air2D_tanh_5layers deep_rl:=sac_air2D_tanh_5layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
