@@ -7,7 +7,9 @@ from geometry_msgs.msg import Twist, Point, Pose
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
+from std_msgs.msg import Bool
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from datetime import datetime
 
 # # pathfollowing
 # world = False
@@ -35,12 +37,19 @@ class Env():
         self.pub_cmd_vel = rospy.Publisher('/hydrone_aerial_underwater/cmd_vel', Twist, queue_size=5)
         self.sub_odom = rospy.Subscriber('/hydrone_aerial_underwater/ground_truth/odometry', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty)
+        self.pub_pose = rospy.Publisher("/hydrone_aerial_underwater/ground_truth/pose", Pose, queue_size=5)
+        self.pub_end = rospy.Publisher("/hydrone_aerial_underwater/end_testing", Bool, queue_size=5)
+        self.eps_to_test = rospy.get_param('~num_eps_test')
+        self.counter_eps = 0
         self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
         self.respawn_goal = Respawn()
         self.past_distance = 0.
+        self.arriving_distance = rospy.get_param('~arriving_distance')
+        self.evaluating = rospy.get_param('~test_param')
         self.stopped = 0
-        self.action_dim = action_dim
+        self.action_dim = action_dim        
+        self.last_time = datetime.now()         
         #Keys CTRL + c will stop script
         rospy.on_shutdown(self.shutdown)
 
@@ -100,7 +109,7 @@ class Env():
             scan_range.append(pa)
 
         current_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y),2)
-        if current_distance < 0.5:
+        if current_distance < self.arriving_distance:
             self.get_goalbox = True
 
         # print(heading, current_distance)
@@ -172,6 +181,22 @@ class Env():
             self.initGoal = False
         else:
             self.goal_x, self.goal_y = self.respawn_goal.getPosition(True, delete=True)
+
+        # publish the episode time
+        timer = Twist()
+        timer.linear.y = (datetime.now() - self.last_time).total_seconds()
+        self.pub_cmd_vel.publish(timer)
+        self.last_time = datetime.now()
+
+        self.counter_eps += 1
+
+        if((self.counter_eps == self.eps_to_test) and self.evaluating == True):
+            self.pub_end.publish(False)
+            rospy.signal_shutdown("end_test")
+        
+        # pose_reset = Pose()
+        # pose_reset.position.x = -100.0
+        # self.pub_pose.publish(pose_reset)
 
         self.goal_distance = self.getGoalDistace()
         # state, _ = self.getState(data, [0.,0., 0.0])
