@@ -271,7 +271,7 @@ rewards     = []
 batch_size  = 256
 
 action_dim = 3
-state_dim  = 25
+state_dim  = 26
 hidden_dim = 512
 ACTION_V_MIN = 0.0 # m/s
 ACTION_W_MIN = -0.25 # rad

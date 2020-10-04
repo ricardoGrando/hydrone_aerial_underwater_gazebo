@@ -35,6 +35,7 @@ class Env():
         self.goal_y = 0
         self.goal_z = 0
         self.heading = 0
+        self.heading_z = 0
         self.initGoal = True
         self.get_goalbox = False
         self.position = Pose()
@@ -71,8 +72,8 @@ class Env():
         _, _, yaw = euler_from_quaternion(orientation_list)
 
         goal_angle = math.atan2(self.goal_y - self.position.y, self.goal_x - self.position.x)
-        goal_angle_z = math.atan2(self.goal_z - self.position.z, math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2))
-        rospy.loginfo("%s", goal_angle_z)
+        self.heading_z = math.atan2(self.goal_z - self.position.z, math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2))
+        # rospy.loginfo("%s", goal_angle_z)
 
         heading = goal_angle - yaw
         #print 'heading', heading
@@ -86,8 +87,7 @@ class Env():
 
     def getState(self, scan, past_action):
         global UNDERWATER
-        scan_range = []
-        heading = self.heading
+        scan_range = []        
         min_range = 0.6
         done = False
 
@@ -98,7 +98,6 @@ class Env():
                 scan_range.append(0)
             else:
                 scan_range.append(scan.ranges[i])
-
 
         if min_range > min(scan_range) or self.position.z < 0.2 or self.position.z > 4.8:
             print(scan_range)
@@ -113,7 +112,7 @@ class Env():
         if current_distance < 0.5:
             self.get_goalbox = True
 
-        return scan_range + [heading, current_distance], done
+        return scan_range + [self.heading, self.heading_z, current_distance], done
 
     def setReward(self, state, done):   
         reward = 0
