@@ -71,6 +71,8 @@ class Env():
         _, _, yaw = euler_from_quaternion(orientation_list)
 
         goal_angle = math.atan2(self.goal_y - self.position.y, self.goal_x - self.position.x)
+        goal_angle_z = math.atan2(self.goal_z - self.position.z, math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2))
+        rospy.loginfo("%s", goal_angle_z)
 
         heading = goal_angle - yaw
         #print 'heading', heading
