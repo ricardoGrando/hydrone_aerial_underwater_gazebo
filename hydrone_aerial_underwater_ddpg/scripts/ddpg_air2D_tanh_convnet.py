@@ -124,11 +124,17 @@ class Actor(nn.Module):
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
 
-        self.fac1 = nn.Sequential(
+        self.layer1 = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=5, stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
+        self.drop_out = nn.Dropout()
+        self.fc1 = nn.Linear(7 * 7 * 64, 256)
+        
         
         self.fa1 = nn.Linear(state_dim, 512)
         nn.init.xavier_uniform_(self.fa1.weight)
@@ -159,6 +165,14 @@ class Actor(nn.Module):
         # self.fa5.bias.data.fill_(0.01)
         # # self.fa3.weight.data.uniform_(-EPS, EPS)
         # # self.fa3.bias.data.uniform_(-EPS, EPS)
+
+    def _conv_layer_set(self, in_c, out_c):
+        conv_layer = nn.Sequential(
+            nn.Conv3d(in_c, out_c, kernel_size=(3, 3, 3), padding=0),
+            nn.ReLU(),
+            nn.MaxPool3d((2, 2, 2)),
+        )
+        return conv_layer
         
     def forward(self, state):
         x = torch.relu(self.fa1(state))
