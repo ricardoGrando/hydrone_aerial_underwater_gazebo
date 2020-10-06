@@ -29,6 +29,13 @@ def cmd_callback(data):
     # time.sleep(0.1)
     # print(data)
 
+def rewarded_callback(data):    
+    # print(data.position.x)
+    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/rewarded_'+PATH+'.csv', 'a')
+    file_object.write(str(data.data)+'\n')
+    # time.sleep(0.1)
+    # print(data)
+
 def end_callback(data):
     rospy.signal_shutdown("end_test")
 
@@ -46,6 +53,7 @@ if __name__ == "__main__":
         rospy.Subscriber("/hydrone_aerial_underwater/ground_truth/pose", Pose, pose_callback)
         rospy.Subscriber("/hydrone_aerial_underwater/cmd_vel", Twist, cmd_callback)
         rospy.Subscriber("/hydrone_aerial_underwater/end_testing", Bool, end_callback)
+        rospy.Subscriber("/hydrone_aerial_underwater/rewarded", Bool, rewarded_callback)
     else:
         rospy.Subscriber("/result", String, store_disk)
 

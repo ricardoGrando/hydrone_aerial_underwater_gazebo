@@ -39,6 +39,7 @@ class Env():
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty)
         self.pub_pose = rospy.Publisher("/hydrone_aerial_underwater/ground_truth/pose", Pose, queue_size=5)
         self.pub_end = rospy.Publisher("/hydrone_aerial_underwater/end_testing", Bool, queue_size=5)
+        self.pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_size=5)
         self.eps_to_test = rospy.get_param('~num_eps_test')
         self.counter_eps = 0
         self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
@@ -135,6 +136,11 @@ class Env():
             self.goal_x, self.goal_y = self.respawn_goal.getPosition(True, delete=True)
             self.goal_distance = self.getGoalDistace()
             self.get_goalbox = False
+
+        if (reward == 100):
+            self.pub_reward.publish(True)
+        else:
+            self.pub_reward.publish(False)
 
         return reward, done
 
