@@ -375,7 +375,7 @@ if __name__ == '__main__':
                 
                 N = copy.deepcopy(noise.get_noise(t=step))                
                 N[0] = N[0]*ACTION_V_MAX/2
-                N[1] = N[0]*ACTION_W_MAX
+                N[1] = N[1]*ACTION_W_MAX
                 # action[0] = action[0] + N[0]
                 # action[1] = action[1] + N[1]
                 # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))

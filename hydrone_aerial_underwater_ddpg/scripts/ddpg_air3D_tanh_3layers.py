@@ -10,7 +10,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from collections import deque
 from std_msgs.msg import *
-from environment_2D import Env
+from environment_3D import Env
 import torch
 import torch.nn.functional as F
 import gc
@@ -85,15 +85,15 @@ class Critic(nn.Module):
         # self.fca1.weight.data.uniform_(-EPS, EPS)
         # self.fca1.bias.data.uniform_(-EPS, EPS)
         
-        self.fca2 = nn.Linear(512, 1)
+        self.fca2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
-        # self.fca3 = nn.Linear(512, 1)
-        # nn.init.xavier_uniform_(self.fca3.weight)
-        # self.fca3.bias.data.fill_(0.01)
+        self.fca3 = nn.Linear(512, 1)
+        nn.init.xavier_uniform_(self.fca3.weight)
+        self.fca3.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
@@ -109,9 +109,9 @@ class Critic(nn.Module):
         # x = torch.cat((xs,xa), dim=1)
         x_state_action = torch.cat([state, action], 1)
         x = torch.relu(self.fca1(x_state_action))
-        # x = torch.relu(self.fca2(x))
+        x = torch.relu(self.fca2(x))
         # x = torch.relu(self.fca3(x))
-        vs = self.fca2(x)
+        vs = self.fca3(x)
         return vs
 
 #---Actor---#
@@ -130,15 +130,15 @@ class Actor(nn.Module):
         # self.fa1.weight.data.uniform_(-EPS, EPS)
         # self.fa1.bias.data.uniform_(-EPS, EPS)
         
-        self.fa2 = nn.Linear(512, action_dim)
+        self.fa2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fa2.weight)
         self.fa2.bias.data.fill_(0.01)
         # self.fa2.weight.data.uniform_(-EPS, EPS)
         # self.fa2.bias.data.uniform_(-EPS, EPS)
         
-        # self.fa3 = nn.Linear(512, action_dim)
-        # nn.init.xavier_uniform_(self.fa3.weight)
-        # self.fa3.bias.data.fill_(0.01)
+        self.fa3 = nn.Linear(512, action_dim)
+        nn.init.xavier_uniform_(self.fa3.weight)
+        self.fa3.bias.data.fill_(0.01)
         # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
 
@@ -156,10 +156,10 @@ class Actor(nn.Module):
         
     def forward(self, state):
         x = torch.relu(self.fa1(state))
-        # x = torch.relu(self.fa2(x))
+        x = torch.relu(self.fa2(x))
         # x = torch.relu(self.fa3(x))
         # x = torch.relu(self.fa4(x))
-        action = self.fa2(x).squeeze(0)
+        action = self.fa3(x).squeeze(0)
         # rospy.loginfo(" %s ", str(action))
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = ((torch.tanh(action[0]) + 1.0)/2.0)*self.action_limit_v
@@ -316,8 +316,8 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
-STATE_DIMENSION = 24
-ACTION_DIMENSION = 2
+STATE_DIMENSION = 26
+ACTION_DIMENSION = 3
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
 ACTION_W_MAX = 0.25 # rad
@@ -376,12 +376,14 @@ if __name__ == '__main__':
                 N = copy.deepcopy(noise.get_noise(t=step))                
                 N[0] = N[0]*ACTION_V_MAX/2
                 N[1] = N[1]*ACTION_W_MAX
+                N[2] = N[2]*ACTION_W_MAX
                 # action[0] = action[0] + N[0]
                 # action[1] = action[1] + N[1]
                 # rospy.loginfo("Noise: %s, %s", str(N[0]), str(N[1]))
                 # rospy.loginfo("Action before: %s, %s", str(action[0]), str(action[1]))
                 action[0] = np.clip(action[0] + N[0], ACTION_V_MIN, ACTION_V_MAX)
                 action[1] = np.clip(action[1] + N[1], ACTION_W_MIN, ACTION_W_MAX)
+                action[2] = np.clip(action[2] + N[2], ACTION_W_MIN, ACTION_W_MAX)
             else:
                 action = trainer.get_exploration_action(state)
 
@@ -422,4 +424,6 @@ if __name__ == '__main__':
 
 print('Completed Training')
 
-# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_2layers deep_rl:=ddpg_air2D_tanh_2layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/
+
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=380 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
