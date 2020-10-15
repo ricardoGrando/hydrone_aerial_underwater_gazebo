@@ -21,6 +21,9 @@ class Respawn():
         self.init_goal_x = 1.0
         self.init_goal_y = 1.0
         self.init_goal_z = 2.0
+        self.init_goal_x = rospy.get_param('~x_start')
+        self.init_goal_y = rospy.get_param('~y_start')
+        self.init_goal_z = rospy.get_param('~z_start')
         self.goal_position.position.x = self.init_goal_x
         self.goal_position.position.y = self.init_goal_y
         self.goal_position.position.z = self.init_goal_z
@@ -36,6 +39,8 @@ class Respawn():
         self.sub_model = rospy.Subscriber('gazebo/model_states', ModelStates, self.checkModel)
         self.check_model = False
         self.index = 0
+
+        self.evaluating = rospy.get_param('~test_param')
 
         self.counter = 0
 
@@ -74,7 +79,7 @@ class Respawn():
         if delete:
             self.deleteModel()
 
-        if self.stage != 4:
+        if self.stage != 4 and self.evaluating == False:
             while position_check:
                 goal_x = random.randrange(0, 40) / 10.0
                 goal_y = random.randrange(-40, 40) / 10.0

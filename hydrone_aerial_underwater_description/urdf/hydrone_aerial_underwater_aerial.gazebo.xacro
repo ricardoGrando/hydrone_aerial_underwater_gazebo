@@ -12,6 +12,7 @@
     <!-- <xacro:property name="volume" value="1.83826"/> -->
     <!-- <xacro:property name="volume" value="0.00001"/> -->
     <xacro:property name="volume" value="0.001"/>
+    <!-- <xacro:property name="volume" value="0.0001"/> -->
 
     <xacro:property name="M_PI" value="3.1415926535897931" />
 
@@ -117,7 +118,7 @@
         <material>Gazebo/FlatBlack</material>
         <sensor type="ray" name="VLP-16-VLP16-Simplified">
         <pose>0 0 0 0 0 0</pose>
-        <visualize>true</visualize>
+        <visualize>false</visualize>
         <update_rate>5</update_rate>
         <ray>
             <scan>

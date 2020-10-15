@@ -19,7 +19,7 @@ class Respawn():
         self.stage = 1
         self.goal_position = Pose()
         self.init_goal_x = rospy.get_param('~x_start')
-        self.init_goal_y = rospy.get_param('~y_start')
+        self.init_goal_y = rospy.get_param('~y_start')        
         self.goal_position.position.x = self.init_goal_x
         self.goal_position.position.y = self.init_goal_y
         self.modelName = 'goal'

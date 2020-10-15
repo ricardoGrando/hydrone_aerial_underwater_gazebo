@@ -139,8 +139,8 @@ class Env():
 
         if (reward == 100):
             self.pub_reward.publish(True)
-        else:
-            self.pub_reward.publish(False)
+        # else:
+        #     self.pub_reward.publish(False)
 
         return reward, done
 

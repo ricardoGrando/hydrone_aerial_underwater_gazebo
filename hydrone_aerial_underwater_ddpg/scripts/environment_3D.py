@@ -11,6 +11,7 @@ from std_msgs.msg import *
 from nav_msgs.msg import Odometry
 from std_srvs.srv import Empty
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+from datetime import datetime
 
 # pathfollowing
 # world = False
@@ -27,8 +28,6 @@ from respawnGoal_3D import Respawn
 import copy
 target_not_movable = True
 
-UNDERWATER = False
-
 class Env():
     def __init__(self, action_dim=3):
         self.goal_x = 0
@@ -42,12 +41,20 @@ class Env():
         self.pub_cmd_vel = rospy.Publisher('/hydrone_aerial_underwater/cmd_vel', Twist, queue_size=5)
         self.sub_odom = rospy.Subscriber('/hydrone_aerial_underwater/ground_truth/odometry', Odometry, self.getOdometry)
         self.reset_proxy = rospy.ServiceProxy('gazebo/reset_world', Empty)
+        self.pub_pose = rospy.Publisher("/hydrone_aerial_underwater/ground_truth/pose", Pose, queue_size=5)
+        self.pub_end = rospy.Publisher("/hydrone_aerial_underwater/end_testing", Bool, queue_size=5)
+        self.pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_size=5)
+        self.eps_to_test = rospy.get_param('~num_eps_test')
+        self.counter_eps = 0
         self.unpause_proxy = rospy.ServiceProxy('gazebo/unpause_physics', Empty)
         self.pause_proxy = rospy.ServiceProxy('gazebo/pause_physics', Empty)
         self.respawn_goal = Respawn()
         self.past_distance = 0.
+        self.arriving_distance = rospy.get_param('~arriving_distance')
+        self.evaluating = rospy.get_param('~test_param')
         self.stopped = 0
-        self.action_dim = action_dim
+        self.action_dim = action_dim        
+        self.last_time = datetime.now() 
         #Keys CTRL + c will stop script
         rospy.on_shutdown(self.shutdown)
 
@@ -85,8 +92,7 @@ class Env():
 
         self.heading = round(heading, 3)
 
-    def getState(self, scan, past_action):
-        global UNDERWATER
+    def getState(self, scan, past_action):        
         scan_range = []        
         min_range = 0.6
         done = False
@@ -99,8 +105,8 @@ class Env():
             else:
                 scan_range.append(scan.ranges[i])
 
-        if min_range > min(scan_range) or self.position.z < 0.2 or self.position.z > 4.8:
-            print(scan_range)
+        if min_range > min(scan_range) or self.position.z < -1.2 or self.position.z > 4.8:
+            # print(scan_range)
             done = True
 
         for pa in past_action:
@@ -134,10 +140,14 @@ class Env():
             self.goal_distance = self.getGoalDistace()
             self.get_goalbox = False
 
+        if (reward == 100):
+            self.pub_reward.publish(True)
+        # else:
+        #     self.pub_reward.publish(False)
+
         return reward, done
 
-    def step(self, action, past_action):
-        global UNDERWATER
+    def step(self, action, past_action):        
         linear_vel_x = action[0]        
         linear_vel_z = action[1]
         angular_vel_z = action[2]
@@ -164,8 +174,7 @@ class Env():
         return np.asarray(state), reward, done
 
     def reset(self):
-        #print('aqui2_____________---')
-        global UNDERWATER
+        #print('aqui2_____________---')        
         rospy.wait_for_service('gazebo/reset_simulation')
         try:
             self.reset_proxy()
@@ -184,6 +193,22 @@ class Env():
             self.initGoal = False
         else:
             self.goal_x, self.goal_y, self.goal_z = self.respawn_goal.getPosition(True, delete=True)
+
+        # publish the episode time
+        timer = Twist()
+        timer.linear.y = (datetime.now() - self.last_time).total_seconds()
+        self.pub_cmd_vel.publish(timer)
+        self.last_time = datetime.now()
+
+        self.counter_eps += 1
+
+        if((self.counter_eps == self.eps_to_test) and self.evaluating == True):
+            self.pub_end.publish(False)
+            rospy.signal_shutdown("end_test")
+
+        # pose_reset = Pose()
+        # pose_reset.position.x = -100.0
+        # self.pub_pose.publish(pose_reset)
 
         self.goal_distance = self.getGoalDistace()
         # state, _ = self.getState(data, [0.,0., 0.0])

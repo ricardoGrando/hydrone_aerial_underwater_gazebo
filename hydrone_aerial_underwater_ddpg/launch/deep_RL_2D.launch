@@ -8,6 +8,7 @@
   <arg name="testing" default="false"/> 
   <arg name="x" default="2.0"/> 
   <arg name="y" default="2.0"/> 
+  <arg name="z" default="2.0"/> 
   <arg name="arr_distance" default="0.5"/> 
   <arg name="testing_eps" default="50"/> 
     
@@ -25,6 +26,7 @@
     <param name="test_param"  value="$(arg testing)"/>
     <param name="x_start"  value="$(arg x)"/>
     <param name="y_start"  value="$(arg y)"/>
+    <param name="z_start"  value="$(arg z)"/>
     <param name="arriving_distance"  value="$(arg arr_distance)"/>
     <param name="num_eps_test"  value="$(arg testing_eps)"/>
   </node>
