@@ -115,7 +115,7 @@ class Env():
         current_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2 + (self.goal_z - self.position.z)**2)
         # current_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2)
         
-        if current_distance < 0.5:
+        if current_distance < self.arriving_distance:
             self.get_goalbox = True
 
         return scan_range + [self.heading, self.heading_z, current_distance], done
