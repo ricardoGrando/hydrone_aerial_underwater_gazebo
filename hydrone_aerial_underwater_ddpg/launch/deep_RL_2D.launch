@@ -10,7 +10,7 @@
   <arg name="y" default="2.0"/> 
   <arg name="z" default="2.0"/> 
   <arg name="arr_distance" default="0.5"/> 
-  <arg name="testing_eps" default="50"/> 
+  <arg name="testing_eps" default="100"/> 
     
   <!-- <arg name="file_dir" default="ddpg_stage_1/ddpg_env2_2d_5_layers"/>  1940 -->
   <!-- <arg name="file_dir" default="ddpg_grando/ddpg_env2_2d"/>  3660 -->
