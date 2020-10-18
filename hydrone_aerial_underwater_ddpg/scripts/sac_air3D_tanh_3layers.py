@@ -263,7 +263,7 @@ class SAC(object):
         hard_update(self.critic_target, self.critic)
         print('***Models load***')
 
-is_training = False
+is_training = True
 
 max_episodes  = 10001
 max_steps   = 500
@@ -341,13 +341,13 @@ if __name__ == '__main__':
 
             rewards_current_episode += reward
             next_state = np.float32(next_state)
-            # if not ep%10 == 0 or not len(replay_buffer) > before_training*batch_size:
-            #     if reward == 100.:
-            #         rospy.loginfo("--------- Maximum Reward ----------")
-            #         for _ in range(3):
-            #             replay_buffer.push(state, action, reward, next_state, done)
-            #     else:
-            #         replay_buffer.push(state, action, reward, next_state, done)
+            if not ep%10 == 0 or not len(replay_buffer) > before_training*batch_size:
+                if reward == 100.:
+                    rospy.loginfo("--------- Maximum Reward ----------")
+                    for _ in range(3):
+                        replay_buffer.push(state, action, reward, next_state, done)
+                else:
+                    replay_buffer.push(state, action, reward, next_state, done)
             
             if len(replay_buffer) > before_training*batch_size and is_training and not ep% 10 == 0:
                 agent.update_parameters(replay_buffer, batch_size)
@@ -356,9 +356,9 @@ if __name__ == '__main__':
             if done:
                 break
 
-            if (reward == 100):
-                is_training = False
-                break
+            # if (reward == 100):
+            #     is_training = False
+            #     break
         
         rospy.loginfo("Reward per ep: %s", str(rewards_current_episode))
         rospy.loginfo("Break step: %s", str(step))
