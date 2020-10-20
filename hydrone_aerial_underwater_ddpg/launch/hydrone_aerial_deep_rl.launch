@@ -2,9 +2,9 @@
 <launch>
   <arg name="debug" default="0" doc="Starts the Gazebo plugins in debug mode for more verbose output"/>
 
-  <arg name="x" default="2.0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
-  <arg name="y" default="3.0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
-  <arg name="z" default="-1.0" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="x" default="0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="y" default="0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
+  <arg name="z" default="2.5" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
   <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
   <arg name="yaw" default="0.0" doc="Yaw angle of the vehicle's initial orientation"/>
