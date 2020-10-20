@@ -435,3 +435,5 @@ print('Completed Training')
 # roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/
 
 # roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=380 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
+
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=1000 file_dir:=ddpg_stage_1_air3D_tanh_3layers deep_rl:=ddpg_air3D_tanh_3layers.py world:=stage_1 root_dir:=/home/ricardo/ graphic_int:=true testing:=true x:=2.0 y:=3.0 z:=-1.0 arr_distance:=0.25 testing_eps:=200
