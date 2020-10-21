@@ -357,7 +357,7 @@ if __name__ == '__main__':
                 break
 
             # if (reward == 100):
-            #     # is_training = False
+            #     is_training = False
             #     break
         
         rospy.loginfo("Reward per ep: %s", str(rewards_current_episode))

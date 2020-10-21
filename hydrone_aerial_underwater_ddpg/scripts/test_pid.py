@@ -11,6 +11,8 @@ from nav_msgs.msg import Odometry
 import math
 from std_srvs.srv import Empty
 from datetime import datetime
+from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import Range
 
 pub = rospy.Publisher('/hydrone_aerial_underwater/command/pose', PoseStamped, queue_size=10)
 
@@ -39,9 +41,13 @@ pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_
 # posy = [0.0, 2.6, 3.0, 1.0, 0.0]
 # posz = [2.5, 1.0, 2.5, 1.0, 2.5]
 
-posx = [0.0]
-posy = [0.0]
-posz = [2.5]
+# posx = [0.0]
+# posy = [0.0]
+# posz = [2.5]
+
+posx = [3.6]
+posy = [-2.4]
+posz = [-1.0]
 
 # goal_x_list = [3.6, -3.6, -3.6, 0.0]
 # goal_y_list = [2.6, 3.0, 1.0, 0.0]
@@ -57,10 +63,15 @@ posz = [2.5]
 #     print(i)
 
 _data = Odometry()
+scan = LaserScan()
 
 def position_callback(data):
     global _data
     _data = data
+
+def laser_callback(data):
+    global scan
+    scan = data
 
 if __name__ == "__main__":   
     global posx
@@ -74,10 +85,13 @@ if __name__ == "__main__":
     global pub_end
     global pub_reward
     global _data
+    global scan
 
     rospy.init_node("test_lee", anonymous=False)    
 
     rospy.Subscriber("/hydrone_aerial_underwater/ground_truth/odometry", Odometry, position_callback)
+
+    rospy.Subscriber("/hydrone_aerial_underwater/scan", LaserScan, laser_callback)
 
     # rospy.Subscriber("/hydrone_aerial_underwater/next_position_pid", Int64, state_callback)
    
@@ -90,8 +104,13 @@ if __name__ == "__main__":
         pose.pose.position.y = posy[0]
         pose.pose.position.z = posz[0]
 
-        # print(distance, i)
-        if (distance < 0.25):
+        # scan = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
+        # rospy.loginfo(str(min(scan.ranges)))
+
+        while len(scan.ranges) == 0:
+            rospy.loginfo("Waiting for laser")
+
+        if (distance < 0.25 or min(scan.ranges) < 0.6):
             # i += 1
             # print(i)
 
@@ -107,8 +126,9 @@ if __name__ == "__main__":
             pub_cmd_vel.publish(timer)
             last_time = datetime.now()
 
-            pub_reward.publish(True)
-
+            if (distance < 0.25):
+                pub_reward.publish(True)
+            
             counter_eps += 1
 
             if(counter_eps == eps_to_test):
