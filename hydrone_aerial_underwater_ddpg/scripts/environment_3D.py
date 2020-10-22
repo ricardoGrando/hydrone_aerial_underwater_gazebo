@@ -105,7 +105,7 @@ class Env():
             else:
                 scan_range.append(scan.ranges[i])
 
-        if min_range > min(scan_range) or self.position.z < -1.2 or self.position.z > 4.8:
+        if min_range > min(scan_range) or self.position.z < 0.2 or self.position.z > 4.8:
             # print(scan_range)
             done = True
 
@@ -142,8 +142,6 @@ class Env():
 
         if (reward == 100):
             self.pub_reward.publish(True)
-        if (reward == -10):
-            self.pub_reward.publish(False)
         # else:
         #     self.pub_reward.publish(False)
 
