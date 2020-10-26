@@ -145,6 +145,30 @@
       <name>obstacle_4</name>
     </include>
 
+    <!-- <include>
+      <uri>model://cylinder</uri>
+      <pose>2.0 2.0 2.5 0.0 0 0</pose>
+      <name>obstacle_1</name>
+    </include>
+
+    <include>
+      <uri>model://cylinder</uri>
+      <pose>-2.0 -2.0 2.5 0.0 0 0</pose>
+      <name>obstacle_2</name>
+    </include>
+
+    <include>
+      <uri>model://cylinder</uri>
+      <pose>2.0 -2.0 2.5 0.0 0 0</pose>
+      <name>obstacle_3</name>
+    </include>
+
+    <include>
+      <uri>model://cylinder</uri>
+      <pose>-2.0 2.0 2.5 0.0 0 0</pose>
+      <name>obstacle_4</name>
+    </include> -->
+
     <!-- Heightmap -->
     <!-- <include>
       <uri>model://sand_heightmap</uri>

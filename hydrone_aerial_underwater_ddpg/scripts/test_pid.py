@@ -45,8 +45,8 @@ pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_
 # posy = [0.0]
 # posz = [2.5]
 
-posx = [3.6]
-posy = [-2.4]
+posx = [2.0]
+posy = [3.0]
 posz = [-1.0]
 
 # goal_x_list = [3.6, -3.6, -3.6, 0.0]
