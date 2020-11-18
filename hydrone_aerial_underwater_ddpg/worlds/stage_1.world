@@ -115,6 +115,12 @@
       <name>grey_wall_4</name>
     </include>
 
+    <include>
+      <uri>model://land_base</uri>
+      <pose>2.0 3.0 -0.8 0 0 0</pose>
+      <name>land_base_1</name>
+    </include>
+
     <!-- <include>
       <uri>model://grey_wall</uri>
       <pose>0.0 1.5 3.0 1.57079632679 0 0</pose>
