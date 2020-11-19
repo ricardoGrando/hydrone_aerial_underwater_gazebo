@@ -119,12 +119,12 @@
         <material>Gazebo/FlatBlack</material>
         <sensor type="ray" name="VLP-16-VLP16-Simplified">
         <pose>0 0 0 0 0 0</pose>
-        <visualize>false</visualize>
+        <visualize>true</visualize>
         <update_rate>5</update_rate>
         <ray>
             <scan>
                 <horizontal>
-                    <samples>20</samples>
+                    <samples>1080</samples>
                     <resolution>1</resolution>
                     <min_angle>-${3*M_PI/4}</min_angle>
                     <max_angle>${3*M_PI/4}</max_angle>
