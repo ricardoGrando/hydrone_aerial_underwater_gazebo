@@ -164,11 +164,24 @@ class Actor(nn.Module):
         m = nn.Hardtanh(-1, 1)
         # action = m(x_t)
         if state.shape <= torch.Size([self.state_dim]):
-            action[0] = ((m(action[0]) + 1.0)/2.0)*self.action_limit_v
-            action[1] = m(action[1])*self.action_limit_w
+            action[0] = ((action[0] + 1.0)/2.0)
+            if action[0] > 1.0: action[0] = 1.0
+            if action[0] < -1.0: action[0] = -1.0
+            action[0] = action[0]*self.action_limit_v
+
+            if action[1] > 1.0: action[1] = 1.0
+            if action[1] < -1.0: action[1] = -1.0
+            action[1] = action[1]*self.action_limit_w
         else:
-            action[:,0] = ((m(action[:,0]) + 1.0)/2.0)*self.action_limit_v
-            action[:,1] = m(action[:,1])*self.action_limit_w
+            for i in range (0, action.shape[0]):
+                action[i,0] = ((action[i,0] + 1.0)/2.0)
+                if action[i,0] > 1.0: action[i,0] = 1.0
+                if action[i,0] < -1.0: action[i,0] = -1.0
+                action[i,0] = action[i,0]*self.action_limit_v
+
+                if action[i,1] > 1.0: action[i,1] = 1.0
+                if action[i,1] < -1.0: action[i,1] = -1.0
+                action[i,1] = action[i,1]*self.action_limit_w  
         return action
 
 #---Memory Buffer---#

@@ -162,14 +162,40 @@ class Actor(nn.Module):
         action = self.fa3(x).squeeze(0)
         m = nn.Hardtanh(-1, 1)
         # rospy.loginfo(" %s ", str(action))
-        if state.shape <= torch.Size([self.state_dim]):
-            action[0] = ((m(action[0]) + 1.0)/2.0)*self.action_limit_v
-            action[1] = m(action[1])*self.action_limit_w
-            action[2] = m(action[2])*self.action_limit_w
+        if state.shape <= torch.Size([self.state_dim]):            
+            action[0] = ((action[0] + 1.0)/2.0)
+            if action[0] > 1.0: action[0] = 1.0
+            if action[0] < -1.0: action[0] = -1.0
+            action[0] = action[0]*self.action_limit_v
+
+            if action[1] > 1.0: action[1] = 1.0
+            if action[1] < -1.0: action[1] = -1.0
+            action[1] = action[1]*self.action_limit_w
+
+            if action[2] > 1.0: action[2] = 1.0
+            if action[2] < -1.0: action[2] = -1.0
+            action[2] = action[2]*self.action_limit_w
+            # action[1] = m(action[1])*self.action_limit_w
+            # action[2] = m(action[2])*self.action_limit_w
+            # print(type(action))            
         else:
-            action[:,0] = ((m(action[:,0]) + 1.0)/2.0)*self.action_limit_v
-            action[:,1] = m(action[:,1])*self.action_limit_w
-            action[:,2] = m(action[:,2])*self.action_limit_w
+            for i in range (0, action.shape[0]):
+                # action[i,0] = ((m(action[i,0]) + 1.0)/2.0)*self.action_limit_v
+                # action[i,1] = m(action[i,1])*self.action_limit_w
+                # action[i,2] = m(action[i,2])*self.action_limit_w
+                # print(action[i])
+                action[i,0] = ((action[i,0] + 1.0)/2.0)
+                if action[i,0] > 1.0: action[i,0] = 1.0
+                if action[i,0] < -1.0: action[i,0] = -1.0
+                action[i,0] = action[i,0]*self.action_limit_v
+
+                if action[i,1] > 1.0: action[i,1] = 1.0
+                if action[i,1] < -1.0: action[i,1] = -1.0
+                action[i,1] = action[i,1]*self.action_limit_w
+                
+                if action[i,2] > 1.0: action[i,2] = 1.0
+                if action[i,2] < -1.0: action[i,2] = -1.0
+                action[i,2] = action[i,2]*self.action_limit_w
         return action
 
 #---Memory Buffer---#
