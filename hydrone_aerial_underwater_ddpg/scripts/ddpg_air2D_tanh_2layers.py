@@ -85,15 +85,15 @@ class Critic(nn.Module):
         # self.fca1.weight.data.uniform_(-EPS, EPS)
         # self.fca1.bias.data.uniform_(-EPS, EPS)
         
-        self.fca2 = nn.Linear(512, 1)
+        self.fca2 = nn.Linear(512, 512)
         nn.init.xavier_uniform_(self.fca2.weight)
         self.fca2.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
-        # self.fca3 = nn.Linear(512, 1)
-        # nn.init.xavier_uniform_(self.fca3.weight)
-        # self.fca3.bias.data.fill_(0.01)
+        self.fca3 = nn.Linear(512, 1)
+        nn.init.xavier_uniform_(self.fca3.weight)
+        self.fca3.bias.data.fill_(0.01)
         # self.fca2.weight.data.uniform_(-EPS, EPS)
         # self.fca2.bias.data.uniform_(-EPS, EPS)
 
@@ -109,9 +109,9 @@ class Critic(nn.Module):
         # x = torch.cat((xs,xa), dim=1)
         x_state_action = torch.cat([state, action], 1)
         x = torch.relu(self.fca1(x_state_action))
-        # x = torch.relu(self.fca2(x))
+        x = torch.relu(self.fca2(x))
         # x = torch.relu(self.fca3(x))
-        vs = self.fca2(x)
+        vs = self.fca3(x)
         return vs
 
 #---Actor---#
