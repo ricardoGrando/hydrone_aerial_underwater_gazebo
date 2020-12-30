@@ -160,8 +160,8 @@ class Actor(nn.Module):
         # self.fa3.bias.data.uniform_(-EPS, EPS)
             
     def forward(self, state):
-        print(state.shape)
-        xc = self.layer1(state[0:1080].reshape((1,1,1080)))        
+        # print(state.shape)
+        xc = self.layer1(state[0:1080])        
         xc = self.layer2(xc)        
         xc = xc.reshape(xc.size(0), -1)
         xc = self.drop_out(xc)
