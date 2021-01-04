@@ -125,17 +125,17 @@ class Actor(nn.Module):
         self.action_limit_w = action_limit_w
 
         self.layer1 = nn.Sequential(
-            nn.Conv1d(1, 1080, kernel_size=5, stride=1, padding=2),
+            nn.Conv1d(1, LASER_SAMPLES, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(540, 8, kernel_size=5, stride=2, padding=2),
+            nn.Conv1d(LASER_SAMPLES/2, 8, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.drop_out = nn.Dropout()
-        self.fcn1 = nn.Linear(540, 256)
+        self.fcn1 = nn.Linear(LASER_SAMPLES/2, 256)
 
-        self.fa0 = nn.Linear(4, 256)
+        self.fa0 = nn.Linear(STATE_DIMENSION-LASER_SAMPLES, 256)
         nn.init.xavier_uniform_(self.fa0.weight)
         self.fa0.bias.data.fill_(0.01)
         # self.fa1.weight.data.uniform_(-EPS, EPS)
@@ -147,34 +147,33 @@ class Actor(nn.Module):
         # self.fa1.weight.data.uniform_(-EPS, EPS)
         # self.fa1.bias.data.uniform_(-EPS, EPS)
         
-        self.fa2 = nn.Linear(512, 512)
+        self.fa2 = nn.Linear(512, action_dim)
         nn.init.xavier_uniform_(self.fa2.weight)
         self.fa2.bias.data.fill_(0.01)
         # self.fa2.weight.data.uniform_(-EPS, EPS)
         # self.fa2.bias.data.uniform_(-EPS, EPS)
         
-        self.fa3 = nn.Linear(512, action_dim)
-        nn.init.xavier_uniform_(self.fa3.weight)
-        self.fa3.bias.data.fill_(0.01)
-        # self.fa3.weight.data.uniform_(-EPS, EPS)
+        # self.fa3 = nn.Linear(512, action_dim)
+        # nn.init.xavier_uniform_(self.fa3.weight)
+        # self.fa3.bias.data.fill_(0.01)
+        # # self.fa3.weight.data.uniform_(-EPS, EPS)
         # self.fa3.bias.data.uniform_(-EPS, EPS)
             
-    def forward(self, state):
-        # print(state.shape)
-        xc = self.layer1(state[0:1080])        
+    def forward_sample(self, state):
+        xc = self.layer1(state[0:LASER_SAMPLES].reshape((1,1,LASER_SAMPLES)))        
         xc = self.layer2(xc)        
         xc = xc.reshape(xc.size(0), -1)
         xc = self.drop_out(xc)
         xc = self.fcn1(xc).squeeze(0)
         
-        xs = torch.relu(self.fa0(state[1080:]))        
+        xs = torch.relu(self.fa0(state[LASER_SAMPLES:]))        
 
         x = torch.cat((xc,xs), dim=0)        
         x = torch.relu(self.fa1(x))
-        x = torch.relu(self.fa2(x))
+        # x = torch.relu(self.fa2(x))
         # x = torch.relu(self.fa3(x))
         # x = torch.relu(self.fa4(x))
-        action = self.fa3(x).squeeze(0)
+        action = self.fa2(x).squeeze(0)
         # rospy.loginfo(" %s ", str(action))
         # if state.shape <= torch.Size([self.state_dim]):
         action[0] = ((torch.tanh(action[0]) + 1.0)/2.0)*self.action_limit_v
@@ -183,6 +182,15 @@ class Actor(nn.Module):
         #     action[0] = ((torch.tanh(action[:,0]) + 1.0)/2.0)*self.action_limit_v
         #     action[:,1] = torch.tanh(action[:,1])*self.action_limit_w
         return action
+        
+    def forward(self, state):
+        if (state.shape[0] == BATCH_SIZE):
+            action = torch.FloatTensor(np.random.rand(BATCH_SIZE,ACTION_DIMENSION))
+            for i in range(0, BATCH_SIZE):
+                action[i] = self.forward_sample(state[i])
+            return action
+        else:
+            return self.forward_sample(state)
 
 #---Memory Buffer---#
 
@@ -332,6 +340,7 @@ MAX_BUFFER = 50000
 rewards_all_episodes = []
 
 STATE_DIMENSION = 1084
+LASER_SAMPLES = 1080
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
