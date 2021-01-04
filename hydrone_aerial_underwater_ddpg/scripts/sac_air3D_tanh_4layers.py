@@ -299,6 +299,7 @@ if __name__ == '__main__':
     pub_result = rospy.Publisher('result', String, queue_size=5)
     ep_0 = rospy.get_param('~ep_number')
     world = rospy.get_param('~file_path') 
+    max_steps = rospy.get_param('~max_steps') 
 
     if (ep_0 != 0):
         agent.load_models(ep_0)

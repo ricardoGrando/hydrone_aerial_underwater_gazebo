@@ -11,20 +11,20 @@ from std_msgs.msg import Bool
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from datetime import datetime
 
-# # pathfollowing
-# world = False
-# if world:
-#     from respawnGoal_custom_worlds import Respawn
-# else:
-#     from respawnGoal_2D import Respawn
-# import copy
-# target_not_movable = False
-
-# Navegation
-world = True
-from respawnGoal_2D import Respawn
+# pathfollowing
+world = False
+if world:
+    from respawnGoal_custom_worlds import Respawn
+else:
+    from respawnGoal_2D import Respawn
 import copy
-target_not_movable = True
+target_not_movable = False
+
+# # Navegation
+# world = True
+# from respawnGoal_2D import Respawn
+# import copy
+# target_not_movable = True
 
 class Env():
     def __init__(self, action_dim=2):
@@ -48,6 +48,7 @@ class Env():
         self.past_distance = 0.
         self.arriving_distance = rospy.get_param('~arriving_distance')
         self.evaluating = rospy.get_param('~test_param')
+        self.eval_path = rospy.get_param('~eval_path')
         self.stopped = 0
         self.action_dim = action_dim        
         self.last_time = datetime.now()         
@@ -62,7 +63,7 @@ class Env():
         rospy.sleep(1)
 
     def getGoalDistace(self):
-        goal_distance = round(math.hypot(self.goal_x - self.position.x, self.goal_y - self.position.y), 2)
+        goal_distance = math.sqrt((self.goal_x - self.position.x)**2 + (self.goal_y - self.position.y)**2)
         self.past_distance = goal_distance
 
         return goal_distance
@@ -126,6 +127,8 @@ class Env():
             reward = -10.
             self.pub_cmd_vel.publish(Twist())
 
+            self.respawn_goal.counter = 0
+
         if self.get_goalbox:
             rospy.loginfo("Goal!!")
             # reward = 500.
@@ -137,8 +140,13 @@ class Env():
             self.goal_distance = self.getGoalDistace()
             self.get_goalbox = False
 
-        if (reward == 100):
+        if (reward == 100 and self.evaluating==True and self.eval_path==False):
             self.pub_reward.publish(True)
+        
+        if (reward == 100 and self.evaluating==True and self.eval_path==True and (self.respawn_goal.counter%(len(self.respawn_goal.goal_x_list)+1))==0):
+            self.pub_reward.publish(True)
+            self.respawn_goal.counter = 0
+            self.reset()
         # else:
         #     self.pub_reward.publish(False)
 
@@ -181,7 +189,7 @@ class Env():
                 data = rospy.wait_for_message('/hydrone_aerial_underwater/scan', LaserScan, timeout=5)
             except:
                 pass
-
+        
         if self.initGoal:
             self.goal_x, self.goal_y = self.respawn_goal.getPosition()
             self.initGoal = False
@@ -194,11 +202,13 @@ class Env():
         self.pub_cmd_vel.publish(timer)
         self.last_time = datetime.now()
 
-        self.counter_eps += 1
-
         if((self.counter_eps == self.eps_to_test) and self.evaluating == True):
             self.pub_end.publish(False)
             rospy.signal_shutdown("end_test")
+
+        self.counter_eps += 1        
+        
+        rospy.loginfo("Test number: %s", str(self.counter_eps))
         
         # pose_reset = Pose()
         # pose_reset.position.x = -100.0

@@ -200,11 +200,13 @@ class Env():
         self.pub_cmd_vel.publish(timer)
         self.last_time = datetime.now()
 
-        self.counter_eps += 1
-
         if((self.counter_eps == self.eps_to_test) and self.evaluating == True):
             self.pub_end.publish(False)
             rospy.signal_shutdown("end_test")
+
+        self.counter_eps += 1
+
+        rospy.loginfo("Test number: %s", str(self.counter_eps))
 
         # pose_reset = Pose()
         # pose_reset.position.x = -100.0

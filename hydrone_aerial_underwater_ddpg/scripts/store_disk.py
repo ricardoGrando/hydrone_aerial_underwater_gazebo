@@ -60,3 +60,8 @@ if __name__ == "__main__":
     rospy.spin()
 
 # roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=1000 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false testing:=true x:=2.0 y:=2.0 arr_distance:=0.1 testing_eps:=5
+
+# 0.5 2D 
+# 0.5 3D
+
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=1000 file_dir:=sac_stage_1_air2D_tanh_2layers deep_rl:=sac_air2D_tanh_2layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=true testing:=true x:=2.0 y:=2.0 arr_distance:=0.5 m_steps:=5000000 testing_eps:=52

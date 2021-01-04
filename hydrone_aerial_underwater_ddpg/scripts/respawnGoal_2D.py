@@ -34,6 +34,10 @@ class Respawn():
         self.check_model = False
         self.index = 0
         self.evaluating = rospy.get_param('~test_param')
+        self.eval_path = rospy.get_param('~eval_path')
+
+        self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
+        self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
 
         self.counter = 0
 
@@ -47,7 +51,7 @@ class Respawn():
         while True:
             if not self.check_model:
                 rospy.wait_for_service('gazebo/spawn_sdf_model')
-                self.goal_position.position.z = 1.0
+                self.goal_position.position.z = 2.5
                 spawn_model_prox = rospy.ServiceProxy('gazebo/spawn_sdf_model', SpawnModel)
                 spawn_model_prox(self.modelName, self.model, 'robotos_name_space', self.goal_position, "world")
                 rospy.loginfo("Goal position : %.1f, %.1f", self.goal_position.position.x,
@@ -55,6 +59,8 @@ class Respawn():
                 break
             else:
                 pass
+        
+        self.counter += 1
 
     def deleteModel(self):
         while True:
@@ -95,6 +101,11 @@ class Respawn():
 
                 self.goal_position.position.x = goal_x
                 self.goal_position.position.y = goal_y
+
+        if (self.evaluating and self.eval_path):
+            self.goal_position.position.x = self.goal_x_list[self.counter%len(self.goal_x_list)]
+            self.goal_position.position.y = self.goal_y_list[self.counter%len(self.goal_x_list)]
+            rospy.loginfo("Counter: %s", str(self.counter%len(self.goal_x_list)))
             
         # goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
         # goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
