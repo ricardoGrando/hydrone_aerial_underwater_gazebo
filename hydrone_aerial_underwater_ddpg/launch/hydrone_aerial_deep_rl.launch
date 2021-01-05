@@ -16,6 +16,8 @@
   <arg name="world_name" default="stage_3_aerial"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
+  <arg name="maxi_lasers" default="false"/>
+  <arg name="mini_lasers" default="true"/>
 
   <arg name="mav_name" default="hydrone"/>
   <arg name="model" default="$(find hydrone_aerial_underwater_description)/urdf/$(arg mav_name)_base.xacro"/>
@@ -43,6 +45,8 @@
                       use_simplified_mesh:=$(arg use_simplified_mesh)
                       debug:=$(arg debug)
                       namespace:=$(arg namespace)
+                      max_lasers:=$(arg maxi_lasers)
+                      min_lasers:=$(arg mini_lasers)
                       inertial_reference_frame:=world" />
 
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
