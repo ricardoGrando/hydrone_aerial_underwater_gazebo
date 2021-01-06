@@ -107,6 +107,8 @@ class Critic(nn.Module):
         # xs = torch.relu(self.fc1(state))
         # xa = torch.relu(self.fa1(action))
         # x = torch.cat((xs,xa), dim=1)
+        # print(state.is_cuda)
+        # print(action.is_cuda)
         x_state_action = torch.cat([state, action], 1)
         x = torch.relu(self.fca1(x_state_action))
         x = torch.relu(self.fca2(x))
@@ -140,8 +142,9 @@ class Actor(nn.Module):
         
     def forward_sample(self, state):
         x, self.hidden_shape = self.lstm_layer(state.reshape((1,1,self.state_dim)), self.hidden_shape)
-        
-        action = self.fa1(x.reshape(self.layer_size)).squeeze(0)
+        # print(action.is_cuda)
+        action = self.fa1(x.reshape(self.layer_size)).squeeze(0)#.to(device=self.device)
+        # print(action.is_cuda)
         
         if state.shape <= torch.Size([self.state_dim]):
             action[0] = ((torch.tanh(action[0]) + 1.0)/2.0)*self.action_limit_v
@@ -153,7 +156,7 @@ class Actor(nn.Module):
 
     def forward(self, state):
         if (state.shape[0] == 256):
-            action = torch.FloatTensor(np.random.rand(256,2))
+            action = torch.FloatTensor(np.random.rand(256,2)).to(device=self.device)
             for i in range(0, 256):
                 action[i] = self.forward_sample(state[i])
             return action
@@ -415,6 +418,4 @@ if __name__ == '__main__':
 
 print('Completed Training')
 
-# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/
-
-# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=380 file_dir:=ddpg_stage_1_air2D_tanh_3layers deep_rl:=ddpg_air2D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=0 file_dir:=ddpg_stage_1_air2D_tanh_lstm deep_rl:=ddpg_air2D_tanh_lstm.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=false
