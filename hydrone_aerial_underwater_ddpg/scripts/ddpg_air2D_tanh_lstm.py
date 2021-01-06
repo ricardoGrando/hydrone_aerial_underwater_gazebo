@@ -141,7 +141,8 @@ class Actor(nn.Module):
         # self.fa1.bias.data.uniform_(-EPS, EPS) 
         
     def forward_sample(self, state):
-        x, self.hidden_shape = self.lstm_layer(state.reshape((1,1,self.state_dim)), self.hidden_shape)
+        # x, self.hidden_shape = self.lstm_layer(state.reshape((1,1,self.state_dim)), self.hidden_shape)
+        x, _ = self.lstm_layer(state.reshape((1,1,self.state_dim)))
         # print(action.is_cuda)
         action = self.fa1(x.reshape(self.layer_size)).squeeze(0)#.to(device=self.device)
         # print(action.is_cuda)
