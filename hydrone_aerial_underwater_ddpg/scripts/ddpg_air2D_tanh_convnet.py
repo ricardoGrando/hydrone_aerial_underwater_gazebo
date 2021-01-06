@@ -125,11 +125,11 @@ class Actor(nn.Module):
         self.action_limit_w = action_limit_w
 
         self.layer1 = nn.Sequential(
-            nn.Conv1d(1, 1080, kernel_size=3, stride=1, padding=2),
+            nn.Conv1d(1, 1080, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=4))
         self.layer2 = nn.Sequential(
-            nn.Conv1d(270, 8, kernel_size=3, stride=2, padding=2),
+            nn.Conv1d(270, 8, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.drop_out = nn.Dropout()
