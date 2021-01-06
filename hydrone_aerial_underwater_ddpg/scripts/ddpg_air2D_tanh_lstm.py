@@ -125,7 +125,7 @@ class Actor(nn.Module):
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
-        self.layer_size = 256
+        self.layer_size = 32
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
         self.hidden_tensor = torch.FloatTensor(1, 1, self.layer_size).to(device=self.device)
         self.cell_tensor = torch.FloatTensor(1, 1, self.layer_size).to(device=self.device)
