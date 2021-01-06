@@ -135,7 +135,7 @@ class Actor(nn.Module):
         self.drop_out = nn.Dropout()
         self.fcn1 = nn.Linear(268, 128)
 
-        self.fa0 = nn.Linear(5, 128)
+        self.fa0 = nn.Linear(STATE_DIMENSION-LASER_SAMPLES, 128)
         nn.init.xavier_uniform_(self.fa0.weight)
         self.fa0.bias.data.fill_(0.01)
         # self.fa1.weight.data.uniform_(-EPS, EPS)
