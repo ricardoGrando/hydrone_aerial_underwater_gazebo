@@ -107,6 +107,8 @@ class Critic(nn.Module):
         # xs = torch.relu(self.fc1(state))
         # xa = torch.relu(self.fa1(action))
         # x = torch.cat((xs,xa), dim=1)
+        # print(state.is_cuda)
+        # print(action.is_cuda)
         x_state_action = torch.cat([state, action], 1)
         x = torch.relu(self.fca1(x_state_action))
         x = torch.relu(self.fca2(x))
@@ -123,17 +125,20 @@ class Actor(nn.Module):
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
 
         self.layer1 = nn.Sequential(
-            nn.Conv1d(1, 1080, kernel_size=5, stride=1, padding=2),
+            nn.Conv1d(1080, 540, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=4))
+            # nn.MaxPool1d(kernel_size=2, stride=4)
+            )
         self.layer2 = nn.Sequential(
-            nn.Conv1d(270, 8, kernel_size=5, stride=2, padding=2),
+            nn.Conv1d(540, 270, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
+            # nn.MaxPool1d(kernel_size=2, stride=2)
+            )
         self.drop_out = nn.Dropout()
-        self.fcn1 = nn.Linear(268, 128)
+        self.fcn1 = nn.Linear(270, 128)
 
         self.fa0 = nn.Linear(STATE_DIMENSION-LASER_SAMPLES, 128)
         nn.init.xavier_uniform_(self.fa0.weight)
@@ -160,7 +165,7 @@ class Actor(nn.Module):
         # self.fa3.bias.data.uniform_(-EPS, EPS)
             
     def forward_sample(self, state):
-        xc = self.layer1(state[0:LASER_SAMPLES].reshape((1,1,LASER_SAMPLES)))        
+        xc = self.layer1(state[0:LASER_SAMPLES].reshape((1,LASER_SAMPLES,1)))        
         xc = self.layer2(xc)        
         xc = xc.reshape(xc.size(0), -1)
         xc = self.drop_out(xc)
@@ -185,7 +190,7 @@ class Actor(nn.Module):
         
     def forward(self, state):
         if (state.shape[0] == BATCH_SIZE):
-            action = torch.FloatTensor(np.random.rand(BATCH_SIZE,ACTION_DIMENSION))
+            action = torch.FloatTensor(np.random.rand(BATCH_SIZE,ACTION_DIMENSION)).to(device=self.device)
             for i in range(0, BATCH_SIZE):
                 action[i] = self.forward_sample(state[i])
             return action

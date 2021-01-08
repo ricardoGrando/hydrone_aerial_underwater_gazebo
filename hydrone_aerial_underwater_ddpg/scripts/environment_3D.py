@@ -52,6 +52,7 @@ class Env():
         self.past_distance = 0.
         self.arriving_distance = rospy.get_param('~arriving_distance')
         self.evaluating = rospy.get_param('~test_param')
+        self.eval_path = rospy.get_param('~eval_path')
         self.stopped = 0
         self.action_dim = action_dim        
         self.last_time = datetime.now() 
@@ -129,6 +130,8 @@ class Env():
             reward = -10.
             self.pub_cmd_vel.publish(Twist())
 
+            self.respawn_goal.counter = 0
+
         if self.get_goalbox:
             rospy.loginfo("Goal!! "+str(abs(self.goal_z - self.position.z)))
             # reward = 500.
@@ -140,8 +143,13 @@ class Env():
             self.goal_distance = self.getGoalDistace()
             self.get_goalbox = False
 
-        if (reward == 100):
+        if (reward == 100 and self.evaluating==True and self.eval_path==False):
             self.pub_reward.publish(True)
+        
+        if (reward == 100 and self.evaluating==True and self.eval_path==True and (self.respawn_goal.counter%(len(self.respawn_goal.goal_x_list)+1))==0):
+            self.pub_reward.publish(True)
+            self.respawn_goal.counter = 0
+            self.reset()
         # else:
         #     self.pub_reward.publish(False)
 
@@ -206,7 +214,8 @@ class Env():
 
         self.counter_eps += 1
 
-        rospy.loginfo("Test number: %s", str(self.counter_eps))
+        if (self.evaluating):
+            rospy.loginfo("Test number: %s", str(self.counter_eps))
 
         # pose_reset = Pose()
         # pose_reset.position.x = -100.0

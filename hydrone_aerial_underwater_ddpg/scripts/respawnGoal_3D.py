@@ -41,6 +41,11 @@ class Respawn():
         self.index = 0
 
         self.evaluating = rospy.get_param('~test_param')
+        self.eval_path = rospy.get_param('~eval_path')
+
+        self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
+        self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+        self.goal_z_list = [2.5, 3.0, 2.0, 2.5, 3.0, 2.0, 2.5]
 
         self.counter = 0
 
@@ -62,6 +67,8 @@ class Respawn():
                 break
             else:
                 pass
+
+        self.counter += 1
 
     def deleteModel(self):
         while True:
@@ -104,6 +111,12 @@ class Respawn():
                 self.goal_position.position.x = goal_x
                 self.goal_position.position.y = goal_y
                 self.goal_position.position.z = goal_z
+
+        if (self.evaluating and self.eval_path):
+            self.goal_position.position.x = self.goal_x_list[self.counter%len(self.goal_x_list)]
+            self.goal_position.position.y = self.goal_y_list[self.counter%len(self.goal_y_list)]
+            self.goal_position.position.z = self.goal_z_list[self.counter%len(self.goal_z_list)]
+            rospy.loginfo("Counter: %s", str(self.counter%len(self.goal_x_list)))
             
         # goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
         # goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
@@ -120,11 +133,12 @@ class Respawn():
         # print(self.index)
 
         time.sleep(0.5)
-        self.respawnModel()
-        time.sleep(0.5)
+        self.respawnModel()        
 
         self.last_goal_x = self.goal_position.position.x
         self.last_goal_y = self.goal_position.position.y
         self.last_goal_z = self.goal_position.position.z
        
         return self.goal_position.position.x, self.goal_position.position.y, self.goal_position.position.z
+
+# roslaunch hydrone_aerial_underwater_ddpg deep_RL_2D.launch ep:=1000 file_dir:=ddpg_stage_1_air3D_tanh_3layers deep_rl:=ddpg_air3D_tanh_3layers.py world:=stage_1_aerial root_dir:=/home/ricardo/ graphic_int:=true testing:=true x:=2.0 y:=2.0 z:=2.0 arr_distance:=0.5 m_steps:=5000000 testing_eps:=52
