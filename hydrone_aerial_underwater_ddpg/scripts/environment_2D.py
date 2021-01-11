@@ -26,8 +26,9 @@ from respawnGoal_2D import Respawn
 import copy
 target_not_movable = True
 
-class Env():
-    def __init__(self, action_dim=2):
+class Env():    
+    def __init__(self, action_dim=2):  
+        global target_not_movable      
         self.goal_x = 0
         self.goal_y = 0
         self.heading = 0
@@ -49,6 +50,10 @@ class Env():
         self.arriving_distance = rospy.get_param('~arriving_distance')
         self.evaluating = rospy.get_param('~test_param')
         self.eval_path = rospy.get_param('~eval_path')
+        if (self.eval_path):
+            target_not_movable = False
+        else:
+            target_not_movable = True
         self.stopped = 0
         self.action_dim = action_dim        
         self.last_time = datetime.now()         
@@ -104,7 +109,10 @@ class Env():
             else:
                 scan_range.append(scan.ranges[i])
 
-        if min_range > min(scan_range) > 0.0:
+        # if min_range > min(scan_range) > 0.0:
+        #     done = True
+        if min_range > min(scan_range) or self.position.z < -1.2 or self.position.z > 4.8:
+            # print(scan_range)
             done = True
 
         for pa in past_action:
