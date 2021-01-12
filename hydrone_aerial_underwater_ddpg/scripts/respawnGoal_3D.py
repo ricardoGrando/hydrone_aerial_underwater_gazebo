@@ -91,15 +91,16 @@ class Respawn():
                 goal_x = random.randrange(0, 40) / 10.0
                 goal_y = random.randrange(-40, 40) / 10.0
                 goal_z = random.randrange(5, 40) / 10.0
-                # if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
-                #     position_check = True
-                # elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
-                #     position_check = True
-                # elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
-                #     position_check = True
-                # elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
-                #     position_check = True
-                position_check = False
+                if abs(goal_x - self.obstacle_1[0]) <= 1.0 and abs(goal_y - self.obstacle_1[1]) <= 1.0:
+                    position_check = True
+                elif abs(goal_x - self.obstacle_2[0]) <= 1.0 and abs(goal_y - self.obstacle_2[1]) <= 1.0:
+                    position_check = True
+                elif abs(goal_x - self.obstacle_3[0]) <= 1.0 and abs(goal_y - self.obstacle_3[1]) <= 1.0:
+                    position_check = True
+                elif abs(goal_x - self.obstacle_4[0]) <= 1.0 and abs(goal_y - self.obstacle_4[1]) <= 1.0:
+                    position_check = True
+                else:
+                    position_check = False
                 
                 if abs(goal_x - 0.0) <= 0.6 and abs(goal_y - 0.0) <= 0.6:
                     position_check = True
