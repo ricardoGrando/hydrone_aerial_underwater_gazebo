@@ -56,7 +56,9 @@ class Env():
             target_not_movable = True
         self.stopped = 0
         self.action_dim = action_dim        
-        self.last_time = datetime.now()         
+        self.last_time = datetime.now() 
+
+        self.hardstep = 0        
         #Keys CTRL + c will stop script
         rospy.on_shutdown(self.shutdown)
 
@@ -155,6 +157,10 @@ class Env():
             self.pub_reward.publish(True)
             self.respawn_goal.counter = 0
             self.reset()
+
+        if (self.hardstep == 1000 and self.evaluating==True and self.eval_path==True):
+            self.respawn_goal.counter = 0
+            self.reset()
         # else:
         #     self.pub_reward.publish(False)
 
@@ -169,7 +175,10 @@ class Env():
         vel_cmd.linear.x = linear_vel_x
         # vel_cmd.linear.y = linear_vel_y
         vel_cmd.angular.z = angular_vel_z
+
         self.pub_cmd_vel.publish(vel_cmd)
+
+        self.hardstep += 1
 
         data = None
         while data is None:
@@ -215,6 +224,8 @@ class Env():
             rospy.signal_shutdown("end_test")
 
         self.counter_eps += 1        
+
+        self.hardstep = 0
         
         if (self.evaluating):
             rospy.loginfo("Test number: %s", str(self.counter_eps))
