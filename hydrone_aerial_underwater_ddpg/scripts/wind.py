@@ -34,7 +34,7 @@ class OUNoise(object):
 if __name__ == "__main__":     
     rospy.init_node("wind_node", anonymous=False)    
 
-    noise = OUNoise(2, max_sigma=.075, min_sigma=0.03, decay_period=8000000)
+    noise = OUNoise(2, max_sigma=.175, min_sigma=0.03, decay_period=8000000)
 
     pub = rospy.Publisher('/hydrone_aerial_underwater/wind_speed', WindSpeed, queue_size=10)    
     r = rospy.Rate(1) # 10hz

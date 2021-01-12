@@ -71,14 +71,14 @@ class QNetwork(nn.Module):
         # Q1
         self.linear1_q1 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q1 = nn.Linear(hidden_dim, hidden_dim)
-        # self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q1 = nn.Linear(hidden_dim, 1)
+        self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear4_q1 = nn.Linear(hidden_dim, 1)
         
         # Q2
         self.linear1_q2 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q2 = nn.Linear(hidden_dim, hidden_dim)
-        # self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q2 = nn.Linear(hidden_dim, 1)
+        self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear4_q2 = nn.Linear(hidden_dim, 1)
         
         self.apply(weights_init_)
         
@@ -87,13 +87,13 @@ class QNetwork(nn.Module):
         
         x1 = F.relu(self.linear1_q1(x_state_action))
         x1 = F.relu(self.linear2_q1(x1))
-        # x1 = F.relu(self.linear3_q1(x1))
-        x1 = self.linear3_q1(x1)
+        x1 = F.relu(self.linear3_q1(x1))
+        x1 = self.linear4_q1(x1)
         
         x2 = F.relu(self.linear1_q2(x_state_action))
         x2 = F.relu(self.linear2_q2(x2))
-        # x2 = F.relu(self.linear3_q2(x2))
-        x2 = self.linear3_q2(x2)
+        x2 = F.relu(self.linear3_q2(x2))
+        x2 = self.linear4_q2(x2)
         
         return x1, x2
 
@@ -103,6 +103,8 @@ class PolicyNetwork(nn.Module):
         
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
+        self.state_dim = state_dim
+        self.action_dim = action_dim
         
         # self.linear1 = nn.Linear(state_dim, hidden_dim)
         # self.linear2 = nn.Linear(hidden_dim, hidden_dim)
@@ -111,19 +113,38 @@ class PolicyNetwork(nn.Module):
         
         self.lstm_layer = nn.LSTM(state_dim, self.layer_size, 1, batch_first=True)
 
-        self.mean_linear = nn.Linear(hidden_dim, action_dim)
-        self.log_std_linear = nn.Linear(hidden_dim, action_dim)
+        self.mean_linear = nn.Linear(self.layer_size, action_dim)
+        self.log_std_linear = nn.Linear(self.layer_size, action_dim)
 
         self.apply(weights_init_)
 
     def forward(self, state):
         # x = F.relu(self.linear1(state))
         # x = F.relu(self.linear2(x))
-        x = F.relu(self.lstm_layer(state))
-        mean = self.mean_linear(x)
-        log_std = self.log_std_linear(x)
-        log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)
+        # print(state.shape)
+        if (state.shape[0] == batch_size):
+            mean = torch.FloatTensor(np.random.rand(batch_size,self.action_dim)).to(device=self.device)
+            log_std = torch.FloatTensor(np.random.rand(batch_size,self.action_dim)).to(device=self.device)
+            for k in range(0, batch_size):
+                x, _ = self.lstm_layer(state[k].reshape((1,1,self.state_dim)))
+                mean[k] = self.mean_linear(x)
+                log_std[k] = self.log_std_linear(x)
+                log_std[k] = torch.clamp(log_std[k], min=self.log_std_min, max=self.log_std_max)            
+        else:
+            x, _ = self.lstm_layer(state.reshape((1,1,self.state_dim)))
+            mean = self.mean_linear(x)
+            log_std = self.log_std_linear(x)
+            log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)
         return mean, log_std
+
+    # def forward(self, state):
+    #     if (state.shape[0] == 256):
+    #         action = torch.FloatTensor(np.random.rand(256,ACTION_DIMENSION)).to(device=self.device)
+    #         for i in range(0, 256):
+    #             action[i] = self.forward_sample(state[i])
+    #         return action
+    #     else:
+    #         return self.forward_sample(state)
 
     def sample(self, state, epsilon=1e-6):
         mean, log_std = self.forward(state)
@@ -131,6 +152,13 @@ class PolicyNetwork(nn.Module):
         normal = Normal(mean, std)
         x_t = normal.rsample()
         action = torch.tanh(x_t)
+        # print(action.shape)
+        if (action.shape[0] == batch_size): 
+            action = action.reshape(batch_size, self.action_dim)
+        else:
+            action = action.reshape(self.action_dim,)
+            
+        # print(action[1])
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + epsilon)
         log_prob = log_prob.sum(1, keepdim=True)
@@ -147,6 +175,7 @@ class SAC(object):
         self.gamma = gamma
         self.tau = tau
         self.alpha = alpha
+        self.action_dim = action_dim
         # self.action_range = [action_space.low, action_space.high]
         self.lr=lr
 
@@ -181,8 +210,9 @@ class SAC(object):
         else:
             _, _, action, _ = self.policy.sample(state)
             action = torch.tanh(action)
-        action = action.detach().cpu().numpy()[0]
-        return action
+        action = action.detach().cpu().numpy()
+        # print(action)
+        return action.reshape(self.action_dim,)
     
     # def rescale_action(self, action):
     #     return action * (self.action_range[1] - self.action_range[0]) / 2.0 +\
