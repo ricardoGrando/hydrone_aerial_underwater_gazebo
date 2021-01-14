@@ -161,7 +161,9 @@ if __name__ == "__main__":
             rotate(posx[j], posy[j])
 
             if (not go_forward(posx[j], posy[j])):
-                rotate_to_contour()
+                # rotate_to_contour()
+                pass
+
                 # rotate until laser 900 the least
                 # contour
                     # if laser 540 distance less then distance to the goal

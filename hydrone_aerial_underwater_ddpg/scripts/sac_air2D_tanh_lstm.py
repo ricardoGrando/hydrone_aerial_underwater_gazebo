@@ -71,14 +71,14 @@ class QNetwork(nn.Module):
         # Q1
         self.linear1_q1 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear4_q1 = nn.Linear(hidden_dim, 1)
+        # self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3_q1 = nn.Linear(hidden_dim, 1)
         
         # Q2
         self.linear1_q2 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear4_q2 = nn.Linear(hidden_dim, 1)
+        # self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3_q2 = nn.Linear(hidden_dim, 1)
         
         self.apply(weights_init_)
         
@@ -87,13 +87,13 @@ class QNetwork(nn.Module):
         
         x1 = F.relu(self.linear1_q1(x_state_action))
         x1 = F.relu(self.linear2_q1(x1))
-        x1 = F.relu(self.linear3_q1(x1))
-        x1 = self.linear4_q1(x1)
+        # x1 = F.relu(self.linear3_q1(x1))
+        x1 = self.linear3_q1(x1)
         
         x2 = F.relu(self.linear1_q2(x_state_action))
         x2 = F.relu(self.linear2_q2(x2))
-        x2 = F.relu(self.linear3_q2(x2))
-        x2 = self.linear4_q2(x2)
+        # x2 = F.relu(self.linear3_q2(x2))
+        x2 = self.linear3_q2(x2)
         
         return x1, x2
 
@@ -110,6 +110,11 @@ class PolicyNetwork(nn.Module):
         # self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         self.layer_size = 32
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+
+        self.hidden_tensor = torch.FloatTensor(1, 1, self.layer_size).to(device=self.device)
+        self.cell_tensor = torch.FloatTensor(1, 1, self.layer_size).to(device=self.device)
+
+        self.hidden_shape = (self.hidden_tensor, self.cell_tensor)
         
         self.lstm_layer = nn.LSTM(state_dim, self.layer_size, 1, batch_first=True)
 
@@ -129,22 +134,14 @@ class PolicyNetwork(nn.Module):
                 x, _ = self.lstm_layer(state[k].reshape((1,1,self.state_dim)))
                 mean[k] = self.mean_linear(x)
                 log_std[k] = self.log_std_linear(x)
-                log_std[k] = torch.clamp(log_std[k], min=self.log_std_min, max=self.log_std_max)            
+
+            log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)            
         else:
             x, _ = self.lstm_layer(state.reshape((1,1,self.state_dim)))
             mean = self.mean_linear(x)
             log_std = self.log_std_linear(x)
             log_std = torch.clamp(log_std, min=self.log_std_min, max=self.log_std_max)
-        return mean, log_std
-
-    # def forward(self, state):
-    #     if (state.shape[0] == 256):
-    #         action = torch.FloatTensor(np.random.rand(256,ACTION_DIMENSION)).to(device=self.device)
-    #         for i in range(0, 256):
-    #             action[i] = self.forward_sample(state[i])
-    #         return action
-    #     else:
-    #         return self.forward_sample(state)
+        return mean, log_std    
 
     def sample(self, state, epsilon=1e-6):
         mean, log_std = self.forward(state)
@@ -171,6 +168,8 @@ class SAC(object):
                  alpha=0.2, 
                  hidden_dim=256,
                  lr=0.0003):
+        
+        torch.autograd.set_detect_anomaly(True)
 
         self.gamma = gamma
         self.tau = tau
