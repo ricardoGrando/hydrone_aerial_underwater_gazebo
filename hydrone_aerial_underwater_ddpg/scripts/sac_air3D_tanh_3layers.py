@@ -70,14 +70,14 @@ class QNetwork(nn.Module):
         # Q1
         self.linear1_q1 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear4_q1 = nn.Linear(hidden_dim, 1)
+        # self.linear3_q1 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3_q1 = nn.Linear(hidden_dim, 1)
         
         # Q2
         self.linear1_q2 = nn.Linear(state_dim + action_dim, hidden_dim)
         self.linear2_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
-        self.linear4_q2 = nn.Linear(hidden_dim, 1)
+        # self.linear3_q2 = nn.Linear(hidden_dim, hidden_dim)
+        self.linear3_q2 = nn.Linear(hidden_dim, 1)
         
         self.apply(weights_init_)
         
@@ -86,13 +86,13 @@ class QNetwork(nn.Module):
         
         x1 = F.relu(self.linear1_q1(x_state_action))
         x1 = F.relu(self.linear2_q1(x1))
-        x1 = F.relu(self.linear3_q1(x1))
-        x1 = self.linear4_q1(x1)
+        # x1 = F.relu(self.linear3_q1(x1))
+        x1 = self.linear3_q1(x1)
         
         x2 = F.relu(self.linear1_q2(x_state_action))
         x2 = F.relu(self.linear2_q2(x2))
-        x2 = F.relu(self.linear3_q2(x2))
-        x2 = self.linear4_q2(x2)
+        # x2 = F.relu(self.linear3_q2(x2))
+        x2 = self.linear3_q2(x2)
         
         return x1, x2
 
