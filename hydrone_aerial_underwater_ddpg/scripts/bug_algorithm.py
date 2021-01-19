@@ -14,6 +14,7 @@ from datetime import datetime
 from sensor_msgs.msg import LaserScan
 from sensor_msgs.msg import Range
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import math
 
 pub = rospy.Publisher('/hydrone_aerial_underwater/command/pose', PoseStamped, queue_size=10)
 
@@ -85,7 +86,7 @@ def go_forward(target_x, target_y):
 
         if (distance < 0.5):
             return True
-        elif (min(scan.ranges) < 0.75):
+        elif (min(scan.ranges) < 0.9):
             publish_velocity(0.0, 0.0)
             return False 
         else:            
@@ -93,13 +94,51 @@ def go_forward(target_x, target_y):
 
         rotate(target_x, target_y)
 
-def rotate_to_contour():
-    i = scan.ranges.index(min(scan.ranges))
+def rotate_to_contour(index):
+    global _data
     vel_cmd = Twist()
 
     while True:
-        publish_velocity(0.0, -0.25)
-        print(i)
+        try:
+            i = scan.ranges.index(min(scan.ranges))
+
+            # if (i > 0 and i < 180):
+            #     publish_velocity(0.15, -0.25)            
+            # elif(i > 180 and i < 360):
+            #     publish_velocity(0.15, 0.25)   
+            # else:
+            publish_velocity(0.0, 0.25)
+
+            d_y = posy[index] - _data.pose.pose.position.y
+            d_x = posx[index] - _data.pose.pose.position.x
+            angle = math.atan2(d_y,d_x)
+            yaw = get_yaw()
+
+            if(angle > 0 and d_y >= 0 ):
+                if(yaw < -math.pi+angle):
+                    angle = 2*math.pi + angle
+                id_target = (angle - yaw)*4*180/math.pi + 540
+                print("0", id_target, (angle - yaw), d_y)
+            elif (angle < 0 and d_y >= 0):
+                if (yaw < angle):
+                    angle = 2*math.pi + angle
+                id_target = (angle - yaw)*4*180/math.pi + 1080+180
+                print("1", id_target, (angle - yaw), d_y)
+            elif (angle > 0 and d_y <= 0):
+                if(yaw < angle):
+                    angle = 2*math.pi + angle
+                id_target = (angle - yaw)*4*180/math.pi + 1080+180
+                print("2", id_target, (angle - yaw), d_y)
+            elif (angle < 0 and d_y <= 0):
+                if(yaw < math.pi+angle):
+                    angle = 2*math.pi + angle
+                id_target = (angle - yaw)*4*180/math.pi + 1080+540+360
+                print("3", id_target, (angle - yaw), d_y)            
+
+            # print(540+int((yaw - angle)*57.2958)*4)            
+        
+        except:
+            pass
 
 def reset():
     global counter_eps
@@ -149,8 +188,8 @@ if __name__ == "__main__":
         # get distance towards the goal
         # rotate until lasers 540 towards the goal
         # go forward
-        # if distance to the goal less than 0.5 finishes episode
-        # if found obstacle, rotate to the left until lasers 540 distance less then distance to the goal
+        # if distance to the goal less than 0.5 finishes "episode"
+        # if found obstacle, rotate to the left until laser 540's distance less then distance to the goal
 
     for i in range(0, eps_to_test): 
         while len(scan.ranges) == 0:
@@ -161,9 +200,8 @@ if __name__ == "__main__":
             rotate(posx[j], posy[j])
 
             if (not go_forward(posx[j], posy[j])):
-                # rotate_to_contour()
-                pass
-
+                rotate_to_contour(j)
+                
                 # rotate until laser 900 the least
                 # contour
                     # if laser 540 distance less then distance to the goal
