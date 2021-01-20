@@ -101,7 +101,6 @@ def rotate_to_contour(index):
     while True:
         try:
             i = scan.ranges.index(min(scan.ranges))
-
             # if (i > 0 and i < 180):
             #     publish_velocity(0.15, -0.25)            
             # elif(i > 180 and i < 360):
@@ -111,7 +110,7 @@ def rotate_to_contour(index):
 
             d_y = posy[index] - _data.pose.pose.position.y
             d_x = posx[index] - _data.pose.pose.position.x
-            angle = math.atan2(d_y,d_x)
+            angle = math.atan2(d_y,-d_x)
             yaw = get_yaw()
 
             if(angle > 0 and d_y >= 0 ):
@@ -135,8 +134,7 @@ def rotate_to_contour(index):
                 id_target = (angle - yaw)*4*180/math.pi + 1080+540+360
                 print("3", id_target, (angle - yaw), d_y)            
 
-            # print(540+int((yaw - angle)*57.2958)*4)            
-        
+            # print(540+int((yaw - angle)*57.2958)*4)  
         except:
             pass
 
