@@ -56,7 +56,6 @@ def get_yaw():
 
     return yaw
 
-
 def rotate(target_x, target_y):
     goal_angle = math.atan2(target_y - _data.pose.pose.position.y, target_x - _data.pose.pose.position.x)
     yaw = get_yaw()
