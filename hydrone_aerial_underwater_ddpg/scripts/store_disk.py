@@ -7,6 +7,7 @@ from geometry_msgs.msg import *
 PATH = 'sac_stage_1/sac_env1_2d_3_layers'
 ROOT = '/home/ricardo/'
 TESTING = False
+TYPENAV = "nav_"
 
 def store_disk(data):
     global PATH
@@ -17,21 +18,21 @@ def store_disk(data):
 
 def pose_callback(data):   
     # print(data.position.x)
-    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/position_'+PATH+'.csv', 'a')
+    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/'+TYPENAV+'position_'+PATH+'.csv', 'a')
     file_object.write(str(data.position.x)+","+str(data.position.y)+","+str(data.position.z)+'\n')
     # time.sleep(0.1)
     # print(data)
 
 def cmd_callback(data):    
     # print(data.position.x)
-    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/cmd_'+PATH+'.csv', 'a')
+    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/'+TYPENAV+'cmd_'+PATH+'.csv', 'a')
     file_object.write(str(data.linear.x)+","+str(data.linear.y)+","+str(data.linear.z)+","+str(data.angular.z)+'\n')
     # time.sleep(0.1)
     # print(data)
 
 def rewarded_callback(data):    
     # print(data.position.x)
-    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/rewarded_'+PATH+'.csv', 'a')
+    file_object = open(ROOT+'catkin_ws/src/hydrone_aerial_underwater_gazebo/hydrone_aerial_underwater_ddpg/scripts/'+TYPENAV+'rewarded_'+PATH+'.csv', 'a')
     file_object.write(str(data.data)+'\n')
     # time.sleep(0.1)
     # print(data)
@@ -43,11 +44,15 @@ if __name__ == "__main__":
     global PATH 
     global ROOT
     global TESTING
+    global TYPENAV
     rospy.init_node("store_disk", anonymous=False)   
 
     PATH = rospy.get_param('~file_path') 
     ROOT = rospy.get_param('~root_path') 
-    TESTING = rospy.get_param('~test_param')      
+    TESTING = rospy.get_param('~test_param') 
+    PATH_TEST = rospy.get_param('~eval_path') 
+    if PATH_TEST:
+        TYPENAV = "multinav_"
 
     if (TESTING):        
         rospy.Subscriber("/hydrone_aerial_underwater/ground_truth/pose", Pose, pose_callback)

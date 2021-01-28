@@ -42,6 +42,7 @@
     <param name="file_path"  value="$(arg file_dir)"/>
     <param name="root_path"  value="$(arg root_dir)"/>
     <param name="test_param"  value="$(arg testing)"/>
+    <param name="eval_path"  value="$(arg e_path)"/>
   </node>
   <node pkg="hydrone_aerial_underwater_ddpg" type="wind.py" name="wind_node" output="screen"></node>
 </launch>
