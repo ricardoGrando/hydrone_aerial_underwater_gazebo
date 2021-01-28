@@ -64,7 +64,7 @@ def rotate(target_x, target_y):
         goal_angle = math.atan2(target_y - _data.pose.pose.position.y, target_x - _data.pose.pose.position.x)
         yaw = get_yaw()  
 
-        print(abs(yaw-goal_angle))   
+        # print(abs(yaw-goal_angle))   
 
         if (yaw-goal_angle < 0):
             publish_velocity(0.0, 0.25)
@@ -96,46 +96,53 @@ def go_forward(target_x, target_y):
 def rotate_to_contour(index):
     global _data
     vel_cmd = Twist()
-
+    id_target = 0
+    
     while True:
         try:
             i = scan.ranges.index(min(scan.ranges))
-            # if (i > 0 and i < 180):
-            #     publish_velocity(0.15, -0.25)            
-            # elif(i > 180 and i < 360):
-            #     publish_velocity(0.15, 0.25)   
-            # else:
-            publish_velocity(0.0, 0.25)
+            print(i)
+            if (i > 0 and i < 180):
+                publish_velocity(0.15, -0.25)            
+            elif(i > 180 and i < 360):
+                publish_velocity(0.15, 0.25)   
+            else:
+                publish_velocity(0.0, 0.25)
 
             d_y = posy[index] - _data.pose.pose.position.y
             d_x = posx[index] - _data.pose.pose.position.x
-            angle = math.atan2(d_y,-d_x)
+            angle = math.atan2(d_y,d_x)
             yaw = get_yaw()
 
-            if(angle > 0 and d_y >= 0 ):
-                if(yaw < -math.pi+angle):
-                    angle = 2*math.pi + angle
+            if (d_x < 0 and d_y > 0):
+                if (yaw < -math.pi+angle):
+                    angle = -2*math.pi + angle
                 id_target = (angle - yaw)*4*180/math.pi + 540
-                print("0", id_target, (angle - yaw), d_y)
-            elif (angle < 0 and d_y >= 0):
-                if (yaw < angle):
-                    angle = 2*math.pi + angle
-                id_target = (angle - yaw)*4*180/math.pi + 1080+180
-                print("1", id_target, (angle - yaw), d_y)
-            elif (angle > 0 and d_y <= 0):
-                if(yaw < angle):
-                    angle = 2*math.pi + angle
-                id_target = (angle - yaw)*4*180/math.pi + 1080+180
-                print("2", id_target, (angle - yaw), d_y)
-            elif (angle < 0 and d_y <= 0):
+            elif(d_x < 0 and d_y < 0):
                 if(yaw < math.pi+angle):
-                    angle = 2*math.pi + angle
+                    angle = -2*math.pi + angle
                 id_target = (angle - yaw)*4*180/math.pi + 1080+540+360
-                print("3", id_target, (angle - yaw), d_y)            
+            else:
+                id_target = (angle - yaw)*4*180/math.pi + 540
 
-            # print(540+int((yaw - angle)*57.2958)*4)  
+            if (id_target < 0):
+                id_target = 0
+            if (id_target > 1080):
+                id_target = 1080             
+              
         except:
             pass
+
+        # try:
+        #     print(scan.ranges.index[id_target])
+        # except:
+        #     pass
+        
+
+        # if (scan.ranges[id_target] > 1.0):
+        #         break
+
+        
 
 def reset():
     global counter_eps
@@ -198,6 +205,8 @@ if __name__ == "__main__":
 
             if (not go_forward(posx[j], posy[j])):
                 rotate_to_contour(j)
+
+                # go_forward(posx[j], posy[j])
                 
                 # rotate until laser 900 the least
                 # contour

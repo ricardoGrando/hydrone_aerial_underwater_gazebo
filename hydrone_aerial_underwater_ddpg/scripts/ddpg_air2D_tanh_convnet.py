@@ -128,25 +128,25 @@ class Actor(nn.Module):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
 
         self.layer1 = nn.Sequential(
-            nn.Conv1d(1080, 540, kernel_size=5, stride=2, padding=2),
+            nn.Conv1d(270, 135, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
             # nn.MaxPool1d(kernel_size=2, stride=4)
             )
         self.layer2 = nn.Sequential(
-            nn.Conv1d(540, 270, kernel_size=5, stride=2, padding=2),
+            nn.Conv1d(135, 64, kernel_size=5, stride=2, padding=2),
             nn.ReLU(),
             # nn.MaxPool1d(kernel_size=2, stride=2)
             )
-        self.drop_out = nn.Dropout()
-        self.fcn1 = nn.Linear(270, 128)
+        # self.drop_out = nn.Dropout()
+        self.fcn1 = nn.Linear(64, 64)
 
-        self.fa0 = nn.Linear(STATE_DIMENSION-LASER_SAMPLES, 128)
+        self.fa0 = nn.Linear(4, 64)
         nn.init.xavier_uniform_(self.fa0.weight)
         self.fa0.bias.data.fill_(0.01)
         # self.fa1.weight.data.uniform_(-EPS, EPS)
         # self.fa1.bias.data.uniform_(-EPS, EPS)
         
-        self.fa1 = nn.Linear(256, action_dim)
+        self.fa1 = nn.Linear(128, action_dim)
         nn.init.xavier_uniform_(self.fa1.weight)
         self.fa1.bias.data.fill_(0.01)
         # self.fa1.weight.data.uniform_(-EPS, EPS)
@@ -168,7 +168,7 @@ class Actor(nn.Module):
         xc = self.layer1(state[0:LASER_SAMPLES].reshape((1,LASER_SAMPLES,1)))        
         xc = self.layer2(xc)        
         xc = xc.reshape(xc.size(0), -1)
-        xc = self.drop_out(xc)
+        # xc = self.drop_out(xc)
         xc = self.fcn1(xc).squeeze(0)
         
         xs = torch.relu(self.fa0(state[LASER_SAMPLES:]))        
@@ -344,8 +344,8 @@ MAX_STEPS = 500
 MAX_BUFFER = 50000
 rewards_all_episodes = []
 
-STATE_DIMENSION = 1084
-LASER_SAMPLES = 1080
+STATE_DIMENSION = 274
+LASER_SAMPLES = 270
 ACTION_DIMENSION = 2
 ACTION_V_MAX = 0.25 # m/s
 ACTION_V_MIN = 0.0
