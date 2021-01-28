@@ -13,6 +13,7 @@
   <arg name="testing_eps" default="100"/> 
   <arg name="m_steps" default="500"/> 
   <arg name="e_path" default="false"/> 
+  <arg name="s_2" default="false"/> 
   <arg name="max_lasers" default="false"/> 
   <arg name="min_lasers" default="true"/> 
     
@@ -37,6 +38,7 @@
     <param name="arriving_distance"  value="$(arg arr_distance)"/>
     <param name="num_eps_test"  value="$(arg testing_eps)"/>
     <param name="max_steps"  value="$(arg m_steps)"/>
+    <param name="scenario_2"  value="$(arg s_2)"/>
   </node>
   <node pkg="hydrone_aerial_underwater_ddpg" type="store_disk.py" name="store_disk" output="screen">
     <param name="file_path"  value="$(arg file_dir)"/>

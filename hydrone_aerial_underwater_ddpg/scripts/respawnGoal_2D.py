@@ -35,9 +35,14 @@ class Respawn():
         self.index = 0
         self.evaluating = rospy.get_param('~test_param')
         self.eval_path = rospy.get_param('~eval_path')
+        self.eval_scenario_2 = rospy.get_param('~scenario_2')
 
-        self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
-        self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+        if (self.eval_scenario_2):
+            self.goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
+            self.goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
+        else:
+            self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
+            self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
 
         self.counter = 0
 
