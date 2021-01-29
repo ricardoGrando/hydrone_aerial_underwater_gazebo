@@ -128,7 +128,9 @@ def rotate_to_contour(index):
             if (id_target < 0):
                 id_target = 0
             if (id_target > 1080):
-                id_target = 1080             
+                id_target = 1080   
+
+            print(scan.ranges.index[id_target])          
               
         except:
             pass
