@@ -263,6 +263,7 @@ class SAC(object):
             next_q_value = reward_batch + (1 - done_batch) * self.gamma * (min_qf_next_target)
             
         qf1, qf2 = self.critic(state_batch, action_batch)  # Two Q-functions to mitigate positive bias in the policy improvement step
+        print(qf1.shape, qf2.shape, next_q_value.shape)
         qf1_loss = F.mse_loss(qf1, next_q_value) # 
         qf2_loss = F.mse_loss(qf2, next_q_value) # 
         qf_loss = qf1_loss + qf2_loss
