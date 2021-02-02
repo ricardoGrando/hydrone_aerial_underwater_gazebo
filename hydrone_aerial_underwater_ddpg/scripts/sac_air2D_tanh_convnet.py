@@ -176,16 +176,24 @@ class PolicyNetwork(nn.Module):
         else:
             action = action.reshape(self.action_dim,)
             
-        # print(action)
+        # print(x_t.shape)
 
         # print(action[1])
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + epsilon)
+        # if (log_prob.shape[0] == self.action_dim):            
+        #     log_prob = log_prob.reshape(1,1,action_dim).sum(1, keepdim=True)
+        # else:
+        #     # print(log_prob.shape) 
+        #     log_prob = log_prob.reshape(self.action_dim,batch_size,1).sum(1, keepdim=True)
         if (log_prob.shape[0] == self.action_dim):            
-            log_prob = log_prob.reshape(1,1,action_dim).sum(1, keepdim=True)
+            log_prob = log_prob.reshape(1,1,self.action_dim).sum(1, keepdim=True)
         else:
             # print(log_prob.shape) 
-            log_prob = log_prob.reshape(self.action_dim,batch_size,1).sum(1, keepdim=True)
+            log_prob = log_prob.reshape(batch_size,self.action_dim).sum(1, keepdim=True)
+
+        # print(action.shape, log_prob.shape)
+
         return action, log_prob, mean, log_std
 
 class SAC(object):
@@ -261,9 +269,10 @@ class SAC(object):
             qf1_next_target, qf2_next_target = self.critic_target(next_state_batch, next_state_action)
             min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
             next_q_value = reward_batch + (1 - done_batch) * self.gamma * (min_qf_next_target)
+            # print(next_state_action.shape, next_state_log_pi.shape, qf1_next_target.shape, qf2_next_target.shape, min_qf_next_target.shape, next_q_value.shape)
             
         qf1, qf2 = self.critic(state_batch, action_batch)  # Two Q-functions to mitigate positive bias in the policy improvement step
-        print(qf1.shape, qf2.shape, next_q_value.shape)
+        # print(qf1.shape, qf2.shape, next_q_value.shape)
         qf1_loss = F.mse_loss(qf1, next_q_value) # 
         qf2_loss = F.mse_loss(qf2, next_q_value) # 
         qf_loss = qf1_loss + qf2_loss
