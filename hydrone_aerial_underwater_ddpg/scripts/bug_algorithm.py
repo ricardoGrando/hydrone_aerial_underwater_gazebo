@@ -25,8 +25,8 @@ counter_eps = 0
 last_time = datetime.now() 
 pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_size=5)
 
-posx = [3.6, 0.0]
-posy = [3.6, 3.0]
+posx = [3.6, 0.0, -3.6, -3.6, 0.0]
+posy = [2.6, 3.5, 3.0, 1.0, 0.0]
 posz = [2.5, 2.5]
 
 _data = Odometry()
@@ -93,6 +93,26 @@ def go_forward(target_x, target_y):
 
         rotate(target_x, target_y)
 
+def go_to_target(target_x, target_y):
+    global _data
+    global scan
+    global pub_cmd_vel
+    global posx
+    global posy
+    global posz
+
+    while True:
+        distance = math.sqrt((target_x - _data.pose.pose.position.x)**2 + (target_y - _data.pose.pose.position.y)**2)# + (posz[0] - _data.pose.pose.position.z)**2)
+        # print(distance)    
+
+        if (distance < 0.5):
+            break     
+        else:            
+            publish_velocity(0.25, 0.0)            
+
+        rotate(target_x, target_y)
+
+
 def rotate_to_contour(index):
     global _data
     vel_cmd = Twist()
@@ -101,7 +121,7 @@ def rotate_to_contour(index):
     while True:
         try:
             i = scan.ranges.index(min(scan.ranges))
-            print(i)
+            # print(i)
             if (i > 0 and i < 180):
                 publish_velocity(0.15, -0.25)            
             elif(i > 180 and i < 360):
@@ -112,6 +132,7 @@ def rotate_to_contour(index):
             d_y = posy[index] - _data.pose.pose.position.y
             d_x = posx[index] - _data.pose.pose.position.x
             angle = math.atan2(d_y,d_x)
+            distance = math.sqrt(d_x**2 + d_y**2)
             yaw = get_yaw()
 
             if (d_x < 0 and d_y > 0):
@@ -130,7 +151,11 @@ def rotate_to_contour(index):
             if (id_target > 1080):
                 id_target = 1080   
 
-            print(scan.ranges.index[id_target])          
+            # print(id_target, scan.ranges[int(id_target)])  
+            # print(distance) 
+
+            if (min(scan.ranges[int(id_target)-180 : int(id_target)+180]) > distance):
+                break       
               
         except:
             pass
@@ -202,13 +227,15 @@ if __name__ == "__main__":
             rospy.loginfo("Waiting for laser") 
 
         for j in range (0, len(posx)): 
-
+            print("Target: "+str(posx[j]) + "," + str(posy[j]))
             rotate(posx[j], posy[j])
 
             if (not go_forward(posx[j], posy[j])):
+                print("Contourning...")                
                 rotate_to_contour(j)
-
-                # go_forward(posx[j], posy[j])
+                print("Finished contourning...")
+                go_to_target(posx[j], posy[j])
+                print("Target achieved!")
                 
                 # rotate until laser 900 the least
                 # contour
