@@ -27,10 +27,14 @@ pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_
 
 posx = [3.6, 0.0, -3.6, -3.6, 0.0]
 posy = [2.6, 3.5, 3.0, 1.0, 0.0]
-posz = [2.5, 2.5]
+posz = [2.5]#, 2.5]
 
 _data = Odometry()
 scan = LaserScan()
+
+counter = 0
+
+collision = False
 
 def position_callback(data):
     global _data
@@ -38,7 +42,12 @@ def position_callback(data):
 
 def laser_callback(data):
     global scan
+    global collision
     scan = data
+
+    if (min(scan.ranges) < 0.6):
+        print("Whatever")
+        collision = True
 
 def publish_velocity(linear_vel_x, angular_vel_z):
     vel_cmd = Twist()
@@ -47,6 +56,7 @@ def publish_velocity(linear_vel_x, angular_vel_z):
     vel_cmd.angular.z = angular_vel_z
 
     pub_cmd_vel.publish(vel_cmd)
+    # time.sleep(0.5)
 
 def get_yaw():
     global _data
@@ -57,6 +67,8 @@ def get_yaw():
     return yaw
 
 def rotate(target_x, target_y):
+    global _data
+    global collision
     goal_angle = math.atan2(target_y - _data.pose.pose.position.y, target_x - _data.pose.pose.position.x)
     yaw = get_yaw()
     
@@ -71,6 +83,11 @@ def rotate(target_x, target_y):
         else:
             publish_velocity(0.0, -0.25)
 
+        if collision:
+            break
+
+        
+
 def go_forward(target_x, target_y):
     global _data
     global scan
@@ -78,6 +95,7 @@ def go_forward(target_x, target_y):
     global posx
     global posy
     global posz
+    global collision
 
     while True:
         distance = math.sqrt((target_x - _data.pose.pose.position.x)**2 + (target_y - _data.pose.pose.position.y)**2)# + (posz[0] - _data.pose.pose.position.z)**2)
@@ -93,6 +111,9 @@ def go_forward(target_x, target_y):
 
         rotate(target_x, target_y)
 
+        if collision:
+            break
+
 def go_to_target(target_x, target_y):
     global _data
     global scan
@@ -100,6 +121,7 @@ def go_to_target(target_x, target_y):
     global posx
     global posy
     global posz
+    global collision
 
     while True:
         distance = math.sqrt((target_x - _data.pose.pose.position.x)**2 + (target_y - _data.pose.pose.position.y)**2)# + (posz[0] - _data.pose.pose.position.z)**2)
@@ -112,9 +134,12 @@ def go_to_target(target_x, target_y):
 
         rotate(target_x, target_y)
 
+        if collision:
+            break
 
 def rotate_to_contour(index):
     global _data
+    global collision
     vel_cmd = Twist()
     id_target = 0
     
@@ -155,28 +180,22 @@ def rotate_to_contour(index):
             # print(distance) 
 
             if (min(scan.ranges[int(id_target)-180 : int(id_target)+180]) > distance):
-                break       
+                break                   
               
         except:
             pass
 
-        # try:
-        #     print(scan.ranges.index[id_target])
-        # except:
-        #     pass
-        
+        if collision:
+                break
 
-        # if (scan.ranges[id_target] > 1.0):
-        #         break
-
-        
-
-def reset():
+def reset(rewarded):
     global counter_eps
     global pub_reward
     global last_time
     global pub_cmd_vel
-
+    global counter
+    global collision
+    
     rospy.wait_for_service('gazebo/reset_simulation')
 
     try:
@@ -190,7 +209,16 @@ def reset():
     pub_cmd_vel.publish(timer)
     last_time = datetime.now()
     
-    pub_reward.publish(True)
+    if rewarded:
+        pub_reward.publish(True)
+        print("Episode rewarded: "+str(counter))
+    else:
+        print("Collision Episode: "+str(counter))
+
+    counter += 1
+    collision = False
+
+    
 
     time.sleep(2)
 
@@ -206,6 +234,7 @@ if __name__ == "__main__":
     global pub_reward
     global _data
     global scan
+    global counter
 
     rospy.init_node("test_bug", anonymous=False)    
 
@@ -221,8 +250,8 @@ if __name__ == "__main__":
         # go forward
         # if distance to the goal less than 0.5 finishes "episode"
         # if found obstacle, rotate to the left until laser 540's distance less then distance to the goal
-
-    for i in range(0, eps_to_test): 
+    
+    while (counter < eps_to_test): 
         while len(scan.ranges) == 0:
             rospy.loginfo("Waiting for laser") 
 
@@ -235,7 +264,7 @@ if __name__ == "__main__":
                 rotate_to_contour(j)
                 print("Finished contourning...")
                 go_to_target(posx[j], posy[j])
-                print("Target achieved!")
+                print("Target achieved!")                
                 
                 # rotate until laser 900 the least
                 # contour
@@ -243,7 +272,13 @@ if __name__ == "__main__":
                         # break
                 # if go_forward
                     # break
-        reset()
+            if collision:
+                break
+
+        if collision:
+            reset(False)
+        else:
+            reset(True)
 
 
     # while not rospy.is_shutdown():      

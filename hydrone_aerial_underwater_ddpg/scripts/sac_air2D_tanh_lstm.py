@@ -159,7 +159,7 @@ class PolicyNetwork(nn.Module):
         log_prob = normal.log_prob(x_t)
         log_prob -= torch.log(1 - action.pow(2) + epsilon)
         log_prob = log_prob.sum(1, keepdim=True)
-        print(action.shape, log_prob.shape)
+        # print(action.shape, log_prob.shape)
         return action, log_prob, mean, log_std
 
 class SAC(object):
@@ -236,8 +236,8 @@ class SAC(object):
             min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - self.alpha * next_state_log_pi
             next_q_value = reward_batch + (1 - done_batch) * self.gamma * (min_qf_next_target)
         
-        print(next_state_action.shape, next_state_log_pi.shape, qf1_next_target.shape, qf2_next_target.shape, min_qf_next_target.shape, next_q_value.shape)
-        print("----------------")
+        # print(next_state_action.shape, next_state_log_pi.shape, qf1_next_target.shape, qf2_next_target.shape, min_qf_next_target.shape, next_q_value.shape)
+        # print("----------------")
 
         qf1, qf2 = self.critic(state_batch, action_batch)  # Two Q-functions to mitigate positive bias in the policy improvement step
         qf1_loss = F.mse_loss(qf1, next_q_value) # 
