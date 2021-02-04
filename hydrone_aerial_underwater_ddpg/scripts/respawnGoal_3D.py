@@ -39,13 +39,19 @@ class Respawn():
         self.sub_model = rospy.Subscriber('gazebo/model_states', ModelStates, self.checkModel)
         self.check_model = False
         self.index = 0
+        self.eval_scenario_2 = rospy.get_param('~scenario_2')
 
         self.evaluating = rospy.get_param('~test_param')
         self.eval_path = rospy.get_param('~eval_path')
 
-        self.goal_x_list = [1.0, 0.0, -2.0, -2.0, 0.0, 1.0, 0.0]
-        self.goal_y_list = [1.0, 2.0, 2.0, -2.0, -2.0, -1.0, 0.0]
-        self.goal_z_list = [2.5, 3.0, 2.0, 2.5, 2.0, 3.0, 2.5]
+        if (self.eval_scenario_2):
+            self.goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
+            self.goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
+            self.goal_z_list = [1.5, 2.0, 3.0, 2.5, 2.0, 3.0, 2.5]
+        else:
+            self.goal_x_list = [1.0, 0.0, -2.0, -2.0, 0.0, 1.0, 0.0]
+            self.goal_y_list = [1.0, 2.0, 2.0, -2.0, -2.0, -1.0, 0.0]
+            self.goal_z_list = [2.5, 3.0, 2.0, 2.5, 2.0, 3.0, 2.5]
 
         self.counter = 0
 

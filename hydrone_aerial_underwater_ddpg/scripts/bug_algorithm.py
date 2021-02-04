@@ -25,8 +25,15 @@ counter_eps = 0
 last_time = datetime.now() 
 pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_size=5)
 
-posx = [3.6, 0.0, -3.6, -3.6, 0.0]
-posy = [2.6, 3.5, 3.0, 1.0, 0.0]
+# posx = [3.6, 0.0, -3.6, -3.6, 0.0]
+# posy = [2.6, 3.5, 3.0, 1.0, 0.0]
+
+posx = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
+posy = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+
+# self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
+# self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+
 posz = [2.5]#, 2.5]
 
 _data = Odometry()

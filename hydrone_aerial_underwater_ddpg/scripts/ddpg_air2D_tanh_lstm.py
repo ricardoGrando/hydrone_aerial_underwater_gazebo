@@ -414,7 +414,7 @@ if __name__ == '__main__':
                     result = (str(ep)+','+str(rewards_current_episode))
                     pub_result.publish(result)
                 break
-        if ep%20 == 0:
+        if ep%10 == 0:
             trainer.save_models(ep)
 
 print('Completed Training')
