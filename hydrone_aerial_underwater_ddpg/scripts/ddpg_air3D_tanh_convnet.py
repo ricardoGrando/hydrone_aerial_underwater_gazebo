@@ -137,7 +137,7 @@ class Actor(nn.Module):
         # self.drop_out = nn.Dropout()
         self.fcn1 = nn.Linear(64, 64)
 
-        self.fa0 = nn.Linear(4, 64)
+        self.fa0 = nn.Linear(6, 64)
         nn.init.xavier_uniform_(self.fa0.weight)
         self.fa0.bias.data.fill_(0.01)
         # self.fa1.weight.data.uniform_(-EPS, EPS)
