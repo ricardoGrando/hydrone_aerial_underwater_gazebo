@@ -123,6 +123,8 @@ class Actor(nn.Module):
         self.action_dim = action_dim
         self.action_limit_v = action_limit_v
         self.action_limit_w = action_limit_w
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+
         
         self.layer1 = nn.Sequential(
             nn.Conv1d(270, 135, kernel_size=5, stride=2, padding=2),
