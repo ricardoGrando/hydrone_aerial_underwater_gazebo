@@ -80,10 +80,10 @@
     </include>
 
     <!-- Bounding box with sea surface -->
-    <!-- <include>
+    <include>
       <uri>model://ocean</uri>
       <pose>0 0 0 0 0 0</pose>
-    </include> -->
+    </include>
 
     <include>
       <uri>model://grey_wall</uri>
