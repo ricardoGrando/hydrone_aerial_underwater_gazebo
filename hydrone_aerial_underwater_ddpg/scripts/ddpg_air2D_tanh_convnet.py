@@ -315,8 +315,13 @@ class Trainer:
         print('****Models saved***')
         
     def load_models(self, episode):
+<<<<<<< HEAD
         self.actor.load_state_dict(torch.load(dirPath + '/Models/' + world + '/'+str(episode)+ '_actor.pt'))#, map_location=torch.device('cpu')))
         self.critic.load_state_dict(torch.load(dirPath + '/Models/' + world + '/'+str(episode)+ '_critic.pt'))#, map_location=torch.device('cpu')))
+=======
+        self.actor.load_state_dict(torch.load(dirPath + '/Models/' + world + '/'+str(episode)+ '_actor.pt', map_location=torch.device('cpu')))
+        self.critic.load_state_dict(torch.load(dirPath + '/Models/' + world + '/'+str(episode)+ '_critic.pt', map_location=torch.device('cpu')))
+>>>>>>> f03c158e56256867b280c81b32f328851444ffca
         hard_update(self.target_actor, self.actor)
         hard_update(self.target_critic, self.critic)
         print('***Models load***')
