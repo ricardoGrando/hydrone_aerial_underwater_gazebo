@@ -113,7 +113,7 @@ class Env():
             else:
                 scan_range.append(scan.ranges[i])
 
-        if min_range > min(scan_range) or self.position.z < -1.2 or self.position.z > 4.8:
+        if min_range > min(scan_range) or self.position.z < -0.1 or self.position.z > 4.8:
             # print(scan_range)
             done = True
 

@@ -47,7 +47,7 @@ class Respawn():
         if (self.eval_scenario_2):
             self.goal_x_list = [3.6, 0.0, -3.6, -3.6, 0.0]
             self.goal_y_list = [2.6, 3.5, 3.0, 1.0, 0.0]
-            self.goal_z_list = [1.5, 2.0, 3.0, 2.5, 2.0, 3.0, 2.5]
+            self.goal_z_list = [1.5, 2.0, 3.0, 2.5, 2.5]
         else:
             self.goal_x_list = [1.0, 0.0, -2.0, -2.0, 0.0, 1.0, 0.0]
             self.goal_y_list = [1.0, 2.0, 2.0, -2.0, -2.0, -1.0, 0.0]
