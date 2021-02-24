@@ -65,8 +65,8 @@ def position_callback(data):
     cmd_vel.linear.y = cmd_vel_x*math.sin(rotation) 
     # cmd_vel.linear.x = cmd_vel_x*math.cos(rotation)
 
-    cmd_vel.linear.z = -2.143
-    # cmd_vel.linear.z = -0.02
+    # cmd_vel.linear.z = -2.143
+    cmd_vel.linear.z = -0.2
     
     # print("X: "+str(cmd_vel.linear.x))
     # print("Y: "+str(cmd_vel.linear.y))

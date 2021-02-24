@@ -87,55 +87,61 @@
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>0 -5.0 -3.0 0 0 0</pose>
+      <pose>0 -5.2 -3.0 0 0 0</pose>
       <name>grey_wall_0</name>
     </include>
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>0 5.0 -3.0 0 0 0</pose>
+      <pose>0 5.2 -3.0 0 0 0</pose>
       <name>grey_wall_1</name>	
     </include>
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>-5.0 0.0 -3.0 0 0 1.57079632679</pose>
+      <pose>-5.2 0.0 -3.0 0 0 1.57079632679</pose>
       <name>grey_wall_2</name>
     </include>
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>5.0 0.0 -3.0 0 0 1.57079632679</pose>
+      <pose>5.2 0.0 -3.0 0 0 1.57079632679</pose>
       <name>grey_wall_3</name>
     </include>
 
     <include>
       <uri>model://grey_wall</uri>
-      <pose>0.0 1.5 -5.0 1.57079632679 0 0</pose>
+      <pose>0.0 1.5 -5.4 1.57079632679 0 0</pose>
       <name>grey_wall_4</name>
     </include>
 
+    <!-- <include>
+      <uri>model://grey_wall</uri>
+      <pose>0.0 1.5 3.0 1.57079632679 0 0</pose>
+      <name>grey_wall_5</name>
+    </include> -->
+
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>2.0 2.0 -1.25 0.0 0 0</pose>
+      <pose>2.0 2.0 2.5 0.0 0 0</pose>
       <name>obstacle_1</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>-2.0 -2.0 -1.25 0.0 0 0</pose>
+      <pose>-2.0 -2.0 2.5 0.0 0 0</pose>
       <name>obstacle_2</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>2.0 -2.0 -1.25 0.0 0 0</pose>
+      <pose>2.0 -2.0 2.5 0.0 0 0</pose>
       <name>obstacle_3</name>
     </include>
 
     <include>
       <uri>model://obstacle_1</uri>
-      <pose>-2.0 2.0 -1.25 0.0 0 0</pose>
+      <pose>-2.0 2.0 2.5 0.0 0 0</pose>
       <name>obstacle_4</name>
     </include>
 

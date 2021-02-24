@@ -1,9 +1,9 @@
-<!-- Spawns the RexROV 2 vehicle in the simulation -->
+<!-- Spawns the hydrone vehicle in the simulation -->
 <launch>
   <arg name="debug" default="0" doc="Starts the Gazebo plugins in debug mode for more verbose output"/>
 
-  <arg name="x" default="0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
-  <arg name="y" default="0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
+  <arg name="x" default="0.0" doc="X coordinate of the vehicle's initial position (in ENU)"/>
+  <arg name="y" default="0.0" doc="Y coordinate of the vehicle's initial position (in ENU)"/>    
   <arg name="z" default="-2.5" doc="Z coordinate of the vehicle's initial position (in ENU)"/>
   <arg name="roll" default="0.0" doc="Roll angle of the vehicle's initial orientation"/>
   <arg name="pitch" default="0.0" doc="Pitch angle of the vehicle's initial orientation"/>
@@ -13,9 +13,11 @@
   <arg name="namespace" default="hydrone_aerial_underwater" doc="Namespace to spawn the vehicle"/>
   <arg name="use_simplified_mesh" default="false" doc="Use simplified geometries instead of the mesh"/>
   
-  <arg name="world_name" default="stage_1_underwater"/>
+  <arg name="world_name" default="stage_3_aerial"/>
   <arg name="gui" default="true"/>
   <arg name="paused" default="false"/>
+  <arg name="maxi_lasers" default="false"/>
+  <arg name="mini_lasers" default="true"/>
 
   <arg name="mav_name" default="hydrone"/>
   <arg name="model" default="$(find hydrone_aerial_underwater_description)/urdf/$(arg mav_name)_base.xacro"/>
@@ -39,10 +41,12 @@
 
   <group ns="$(arg namespace)">
     <param name="robot_description"
-             command="$(find xacro)/xacro '$(find hydrone_aerial_underwater_description)/robots/hydrone_aerial_underwater_underwater.xacro' --inorder
+             command="$(find xacro)/xacro '$(find hydrone_aerial_underwater_description)/robots/hydrone_aerial_underwater_aerial.xacro' --inorder
                       use_simplified_mesh:=$(arg use_simplified_mesh)
                       debug:=$(arg debug)
                       namespace:=$(arg namespace)
+                      max_lasers:=$(arg maxi_lasers)
+                      min_lasers:=$(arg mini_lasers)
                       inertial_reference_frame:=world" />
 
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
@@ -55,7 +59,7 @@
       <!-- <remap from="/hydrone_aerial_underwater/command/pose" to="/hydrone_aerial_underwater/command_aerial/pose" /> -->
     </node>
 
-    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity_under.py" />    
+    <node name="hydrone_aerial_underwater_ddpg_velocity" pkg="hydrone_aerial_underwater_ddpg" type="velocity_under_2D.py" />    
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />

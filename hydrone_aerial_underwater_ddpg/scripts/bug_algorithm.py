@@ -25,16 +25,17 @@ counter_eps = 0
 last_time = datetime.now() 
 pub_reward = rospy.Publisher("/hydrone_aerial_underwater/rewarded", Bool, queue_size=5)
 
-# posx = [3.6, 0.0, -3.6, -3.6, 0.0]
-# posy = [2.6, 3.5, 3.0, 1.0, 0.0]
+posx = [3.6]#, 0.0, -3.6, -3.6, 0.0]
+posy = [2.6]#, 3.5, 3.0, 1.0, 0.0]
 
-posx = [2.0]#, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
-posy = [2.0]#, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
+# posx = [1.0, 0.0, -2.0, -2.0, 0.0, 1.0, 0.0]
+# posy = [1.0, 2.0, 2.0, -2.0, -2.0, -1.0, 0.0]
 
 # self.goal_x_list = [2.0, 0.0, -2.0, -2.0, 0.0, 2.0, 0.0]
 # self.goal_y_list = [2.0, 3.0, 2.0, -2.0, -3.0, -2.0, 0.0]
 
-posz = [2.5]#, 2.5]
+# posz = [2.5, 3.0, 2.0, 2.5, 2.0, 3.0, 2.5]
+posz = [1.5]#, 2.0, 3.0, 2.5, 2.5]
 
 _data = Odometry()
 scan = LaserScan()
@@ -93,6 +94,23 @@ def rotate(target_x, target_y):
         if collision:
             break
 
+def check_z_position(posz):
+    global _data
+    distance_z = (posz - _data.pose.pose.position.z)
+
+    vel_cmd = Twist()      
+    
+    while (abs(distance_z) > 0.1):   
+        distance_z = (posz - _data.pose.pose.position.z)        
+
+        if (distance_z < 0):
+            vel_cmd.linear.z = -0.25
+        else:
+            vel_cmd.linear.z = 0.25
+
+        pub_cmd_vel.publish(vel_cmd)
+        
+        time.sleep(0.1)
         
 
 def go_forward(target_x, target_y):
@@ -263,7 +281,8 @@ if __name__ == "__main__":
             rospy.loginfo("Waiting for laser") 
 
         for j in range (0, len(posx)): 
-            print("Target: "+str(posx[j]) + "," + str(posy[j]))
+            print("Target: "+str(posx[j]) + "," + str(posy[j]) + "," + str(posz[j]))
+            check_z_position(posz[j])
             rotate(posx[j], posy[j])
 
             if (not go_forward(posx[j], posy[j])):
